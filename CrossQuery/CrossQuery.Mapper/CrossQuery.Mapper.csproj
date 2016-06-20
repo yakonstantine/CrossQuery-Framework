@@ -40,6 +40,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\MapperConfigurationExtensions.cs" />
+    <Compile Include="Interfaces\IMapperConfiguration.cs" />
+    <Compile Include="Internal\MapOperation.cs" />
+    <Compile Include="Internal\MapperConfiguration.cs" />
+    <Compile Include="Mapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
