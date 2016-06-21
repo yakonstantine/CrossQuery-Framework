@@ -24,5 +24,7 @@ namespace CrossQuery.Mapper.Tests.Mock
         {
             return this.StringProp;
         }
+
+        public MockDestination1 ReferenceProperty { get; set; }
     }
 }

@@ -19,5 +19,7 @@ namespace CrossQuery.Mapper.Tests.Mock
         public double DoubleProp { get; set; }
 
         public string StringProp1 { get; set; }
+
+        public MockSource1 ReferenceProperty { get; set; }
     }
 }

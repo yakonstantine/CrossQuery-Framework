@@ -200,5 +200,79 @@ namespace CrossQuery.Mapper.Tests
 
             var result = Mapper.Map<MockSource, MockDestination>(source);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotImplementedException))]
+        public void MapReferenceProperty_MapperIsNotImplemented()
+        {
+            Mapper.CreateConfiguration<MockSource, MockDestination>()
+                .AddMap(s => s.GuidProp, d => d.GuidProp)
+                .AddMap(s => s.StringProp, d => d.StringProp)
+                .AddMap(s => s.IntProp, d => d.IntProp)
+                .AddMap(s => s.DateTimeProp, d => d.DateTimeProp)
+                .AddMap(s => s.DoubleProp, d => d.DoubleProp)
+                .AddMap(s => s.ReferenceProperty, d => d.ReferenceProperty);
+
+            var source = new MockSource()
+            {
+                GuidProp = Guid.NewGuid(),
+                StringProp = "anyString",
+                IntProp = 1234,
+                DateTimeProp = DateTime.Now,
+                DoubleProp = 123.456,
+                ReferenceProperty = new MockSource1()
+                {
+                    GuidProp = Guid.NewGuid(),
+                    StringProp = "anyRefString",
+                    IntProp = 456
+                }
+            };
+
+            var result = Mapper.Map<MockSource, MockDestination>(source);
+        }
+
+        [TestMethod]
+        public void MapReferenceProperty_MapperImplemented_AllOk()
+        {
+            Mapper.CreateConfiguration<MockSource1, MockDestination1>()
+                .AddMap(s => s.GuidProp, d => d.GuidProp)
+                .AddMap(s => s.StringProp, d => d.StringProp)
+                .AddMap(s => s.IntProp, d => d.IntProp);
+
+            Mapper.CreateConfiguration<MockSource, MockDestination>()
+                .AddMap(s => s.GuidProp, d => d.GuidProp)
+                .AddMap(s => s.StringProp, d => d.StringProp)
+                .AddMap(s => s.IntProp, d => d.IntProp)
+                .AddMap(s => s.DateTimeProp, d => d.DateTimeProp)
+                .AddMap(s => s.DoubleProp, d => d.DoubleProp)
+                .AddMap(s => s.ReferenceProperty, d => d.ReferenceProperty);       
+
+            var source = new MockSource()
+            {
+                GuidProp = Guid.NewGuid(),
+                StringProp = "anyString",
+                IntProp = 1234,
+                DateTimeProp = DateTime.Now,
+                DoubleProp = 123.456,
+                ReferenceProperty = new MockSource1()
+                {
+                    GuidProp = Guid.NewGuid(),
+                    StringProp = "anyRefString",
+                    IntProp = 456
+                }
+            };
+
+            var result = Mapper.Map<MockSource, MockDestination>(source);
+
+            Assert.AreEqual(source.GuidProp, result.GuidProp, "GuidProp error.");
+            Assert.AreEqual(source.StringProp, result.StringProp, "StringProp error.");
+            Assert.AreEqual(source.IntProp, result.IntProp, "IntProp error.");
+            Assert.AreEqual(source.DateTimeProp, result.DateTimeProp, "DateTimeProp error.");
+            Assert.AreEqual(source.DoubleProp, result.DoubleProp, "DoubleProp error.");
+
+            Assert.AreEqual(source.ReferenceProperty.GuidProp, result.ReferenceProperty.GuidProp, "ReferenceProperty.GuidProp error.");
+            Assert.AreEqual(source.ReferenceProperty.StringProp, result.ReferenceProperty.StringProp, "ReferenceProperty.StringProp error.");
+            Assert.AreEqual(source.ReferenceProperty.IntProp, result.ReferenceProperty.IntProp, "ReferenceProperty.IntProp error.");    
+        }
     }
 }
