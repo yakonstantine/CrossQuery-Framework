@@ -17,15 +17,27 @@ namespace CrossQuery.Mapper
             if (source == null)
                 throw new NullReferenceException("source is null.");
 
-            var destination = new TDest();
             var mapperConfiguration = GetConfiguration<TSource, TDest>();
 
             if (mapperConfiguration == null)
                 throw new NotImplementedException($"Mapper for {typeof(TSource).Name} and {typeof(TDest).Name} is not implemented");
 
-            ((MapperConfiguration<TSource, TDest>)mapperConfiguration).Map(source, destination);
+            return ((MapperConfiguration<TSource, TDest>)mapperConfiguration).Map(source);
+        }
 
-            return destination;
+        public static IEnumerable<TDest> Map<TSource, TDest>(IQueryable<TSource> sourceCollection)
+            where TDest : class, new()
+            where TSource : class
+        {
+            if (sourceCollection == null)
+                throw new NullReferenceException("Cource Collection is null.");
+
+            var mapperConfiguration = GetConfiguration<TSource, TDest>();
+
+            if (mapperConfiguration == null)
+                throw new NotImplementedException($"Mapper for {typeof(TSource).Name} and {typeof(TDest).Name} is not implemented");
+
+            return sourceCollection.Select(s => ((MapperConfiguration<TSource, TDest>)mapperConfiguration).Map(s)).AsParallel().ToList();
         }
 
         public static IMapperConfiguration<TSource, TDest> CreateConfiguration<TSource, TDest>()

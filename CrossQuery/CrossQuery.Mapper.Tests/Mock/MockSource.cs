@@ -21,5 +21,7 @@ namespace CrossQuery.Mapper.Tests.Mock
         public string StringProp1 { get; set; }
 
         public MockSource1 ReferenceProperty { get; set; }
+
+        public IEnumerable<MockSource1> CollectionOfReferenceProperties { get; set; }
     }
 }

@@ -26,5 +26,7 @@ namespace CrossQuery.Mapper.Tests.Mock
         }
 
         public MockDestination1 ReferenceProperty { get; set; }
+
+        public IEnumerable<MockDestination1> CollectionOfReferenceProperties { get; set; }
     }
 }

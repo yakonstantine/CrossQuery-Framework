@@ -21,10 +21,14 @@ namespace CrossQuery.Mapper.Internal
             });
         }
 
-        internal void Map(TSource sourceObj, TDest destObj) 
+        internal TDest Map(TSource sourceObj) 
         {
+            var detination = new TDest();
+
             foreach (var mapOperation in _mapOperations)
-                mapOperation.Map(sourceObj, destObj);
+                mapOperation.Map(sourceObj, detination);
+
+            return detination;
         }
 
         public Type GetDestinationType()

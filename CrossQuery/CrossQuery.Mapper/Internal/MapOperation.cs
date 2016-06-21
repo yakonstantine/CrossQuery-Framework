@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.ComponentModel;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -23,24 +25,46 @@ namespace CrossQuery.Mapper.Internal
             var destinationPropertyInfo = GetPropertyInfo(DestinationProperyExpression.Body);
             var sourcePropertyValue = GetSourcePropertyValue(sourceObj);
 
-            if (IsReferenceType(destinationPropertyInfo.PropertyType) && IsReferenceType(sourcePropertyValue.GetType()))
-                try
+            try
+            {
+                if (IsCollection(destinationPropertyInfo.PropertyType)
+                && IsCollection(sourcePropertyValue.GetType()))
                 {
-                    sourcePropertyValue = typeof(Mapper).GetMethod("Map")
+                    sourcePropertyValue = typeof(Mapper)
+                        .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                        .First(m => m.Name == "Map" && IsCollection(m.ReturnType))
                         .MakeGenericMethod(new Type[]
                         {
-                        sourcePropertyValue.GetType(),
-                        destinationPropertyInfo.PropertyType
+                            sourcePropertyValue.GetType().GetGenericArguments().First(),
+                            destinationPropertyInfo.PropertyType.GetGenericArguments().First()
                         })
-                        .Invoke(null, new object[]
+                        .Invoke(null, new[]
                         {
-                        sourcePropertyValue
+                            ((IEnumerable)sourcePropertyValue).AsQueryable()
                         });
                 }
-                catch (TargetInvocationException ex)
+                else if (IsReferenceType(destinationPropertyInfo.PropertyType)
+                && IsReferenceType(sourcePropertyValue.GetType()))
                 {
-                    throw ex.InnerException;
+
+                    sourcePropertyValue = typeof(Mapper)
+                        .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                        .First(m => m.Name == "Map" && !IsCollection(m.ReturnType))
+                        .MakeGenericMethod(new Type[]
+                        {
+                            sourcePropertyValue.GetType(),
+                            destinationPropertyInfo.PropertyType
+                        })
+                        .Invoke(null, new[]
+                        {
+                            sourcePropertyValue
+                        });
                 }
+            }
+            catch (TargetInvocationException ex)
+            {
+                throw ex.InnerException;
+            }
 
             try
             {
@@ -94,6 +118,14 @@ namespace CrossQuery.Mapper.Internal
                 return true;
 
             return false;        
+        }
+
+        private bool IsCollection(Type type)
+        {
+            if (type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type))
+                return true;
+
+            return false;
         }
     }
 }
