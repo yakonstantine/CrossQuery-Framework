@@ -8,7 +8,7 @@ namespace CrossQuery.Mapper
 {
     public static class Mapper
     {
-        internal static List<IMapperConfiguration> _mapperConfigurations = new List<IMapperConfiguration>();
+        private static List<IMapperConfiguration> _mapperConfigurations = new List<IMapperConfiguration>();
 
         public static TDest Map<TSource, TDest>(TSource source)  
             where TDest : class, new()
@@ -30,7 +30,7 @@ namespace CrossQuery.Mapper
             where TSource : class
         {
             if (sourceCollection == null)
-                throw new NullReferenceException("Cource Collection is null.");
+                throw new NullReferenceException("Source Collection is null.");
 
             var mapperConfiguration = GetConfiguration<TSource, TDest>();
 
