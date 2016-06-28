@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using CrossQuery.Interfaces;
+using CrossQuery.Linq.Interfaces;
 
 namespace CrossQuery.Entity.Interfaces
 {

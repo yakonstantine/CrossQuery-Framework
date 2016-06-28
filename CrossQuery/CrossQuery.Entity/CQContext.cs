@@ -5,6 +5,7 @@ using CrossQuery.Entity.Interfaces;
 using CrossQuery.Interfaces;
 using CrossQuery.Linq;
 using CrossQuery.Linq.Collections;
+using CrossQuery.Linq.Interfaces;
 
 namespace CrossQuery.Entity
 {

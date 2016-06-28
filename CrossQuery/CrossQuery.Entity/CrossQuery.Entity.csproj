@@ -46,7 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CrossQuery.Interfaces\CrossQuery.Interfaces.csproj">
-      <Project>{99b330c3-853b-458e-8c94-4372f59f9d2b}</Project>
+      <Project>{99B330C3-853B-458E-8C94-4372F59F9D2B}</Project>
       <Name>CrossQuery.Interfaces</Name>
     </ProjectReference>
     <ProjectReference Include="..\CrossQuery.Linq\CrossQuery.Linq.csproj">

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CrossQuery.Interfaces
+namespace CrossQuery.Linq.Interfaces
 {
-    public interface ICQObject
+    interface ICQProvider
     {
     }
 }

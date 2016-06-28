@@ -12,7 +12,14 @@ namespace CrossQuery.Linq.Collections
         BaseCQProvider _provider;
         Expression _expression;
 
-        public CQSet(BaseCQProvider provider)
+        private CQSet()
+        {
+            if (typeof(ICQObject).IsAssignableFrom(typeof(T)))
+                throw new InvalidCastException($"{typeof(T).FullName} don't inmplement interface {typeof(ICQObject).FullName}");
+        }
+
+        public CQSet(BaseCQProvider provider) 
+            : base()
         {
             if (provider == null)
                 throw new ArgumentNullException("provider");
@@ -22,6 +29,7 @@ namespace CrossQuery.Linq.Collections
         }
 
         public CQSet(BaseCQProvider provider, Expression expression)
+            : base()
         {
             if (provider == null)
                 throw new ArgumentNullException("provider");
@@ -62,11 +70,6 @@ namespace CrossQuery.Linq.Collections
         IEnumerator IEnumerable.GetEnumerator()
         {
             return ((IEnumerable)_provider.Execute(_expression)).GetEnumerator();
-        }
-
-        public override string ToString()
-        {
-            return _provider.GetQueryText(_expression);
         }
     }
 }

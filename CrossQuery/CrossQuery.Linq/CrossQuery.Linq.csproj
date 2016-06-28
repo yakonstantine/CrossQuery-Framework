@@ -40,10 +40,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\AdapterAttribute.cs" />
+    <Compile Include="Attributes\AssotiationAttribute.cs" />
     <Compile Include="Collections\CQSet.cs" />
     <Compile Include="CQProvider.cs" />
     <Compile Include="Helpers\TypeSystem.cs" />
     <Compile Include="Interfaces\BaseCQProvider.cs" />
+    <Compile Include="Interfaces\ICQObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using CrossQuery.Linq.Collections;
 using CrossQuery.Linq.Helpers;
 
@@ -40,8 +37,6 @@ namespace CrossQuery.Linq.Interfaces
         {
             return this.Execute(expression);
         }
-
-        public abstract string GetQueryText(Expression expression);
 
         public abstract object Execute(Expression expression);
     }
