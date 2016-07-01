@@ -60,6 +60,10 @@
       <Project>{99B330C3-853B-458E-8C94-4372F59F9D2B}</Project>
       <Name>CrossQuery.Interfaces</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CrossQuery.Mapper\CrossQuery.Mapper.csproj">
+      <Project>{7eb04099-2914-4d88-b737-5d88b512ae1a}</Project>
+      <Name>CrossQuery.Mapper</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

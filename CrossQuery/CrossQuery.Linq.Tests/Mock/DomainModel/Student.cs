@@ -4,7 +4,7 @@ using CrossQuery.Linq.Interfaces;
 
 namespace CrossQuery.Linq.Tests.Mock.DomainModel
 {
-    [Adapter(AdapterName = "DB1", SourceClass = typeof(DB_1_Entities.Student))]
+    [Adapter(AdapterName = "DB1", SourceClass = typeof(DB1_Context.Student))]
     public class Student : ICQObject
     {
         public Guid ID { get; set; }

@@ -12,5 +12,10 @@ namespace CrossQuery.Interfaces
 
         IQueryable<TEntity> GetEntities<TEntity>()
             where TEntity : class;
+
+        void AddEntity<TEntity>(TEntity entity)
+            where TEntity : class;
+
+        void SaveChanges();
     }
 }

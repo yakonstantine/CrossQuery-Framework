@@ -37,7 +37,11 @@ namespace CrossQuery.Mapper
             if (mapperConfiguration == null)
                 throw new NotImplementedException($"Mapper for {typeof(TSource).Name} and {typeof(TDest).Name} is not implemented");
 
-            return sourceCollection.Select(s => ((MapperConfiguration<TSource, TDest>)mapperConfiguration).Map(s)).AsParallel().ToList();
+            return sourceCollection
+                .ToList()
+                .Select(s => ((MapperConfiguration<TSource, TDest>)mapperConfiguration).Map(s))
+                .AsParallel()
+                .ToList();
         }
 
         public static IMapperConfiguration<TSource, TDest> CreateConfiguration<TSource, TDest>()

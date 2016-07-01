@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Dynamic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -14,9 +14,8 @@ namespace CrossQuery.Linq
         private IDataAdapter _dataAdapter;
         private Expression _expression;
 
-        private Type _entityType;
-        private StringBuilder _lambdaExpression = new StringBuilder();
-        private string _methodName;
+        private Stack<Query> _queryStack = new Stack<Query>();
+        private Query _query;
 
         internal QueryBuilder(IDataAdapter dataAdapter, Expression sourceExpression)
         {
@@ -28,15 +27,7 @@ namespace CrossQuery.Linq
         {
             this.Visit(_expression);
 
-            var parameterExpression = Expression.Parameter(_entityType, "x");
-            var lambda = System.Linq.Dynamic.DynamicExpression.ParseLambda(new[] { parameterExpression }, null, _lambdaExpression.ToString(), null);
-
-            return new Query
-            {
-                Type = _methodName,
-                EntityType = _entityType,
-                LambdaExpression = lambda
-            };
+            return _queryStack.Peek();
         }
 
         private static Expression StripQuotes(Expression expression)
@@ -49,12 +40,20 @@ namespace CrossQuery.Linq
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            _query = new Query
+            {
+                MethodName = methodCallExpression.Method.Name
+            };
+
+            _queryStack.Push(_query);
+
             this.Visit(methodCallExpression.Arguments[0]);
 
-            _methodName = methodCallExpression.Method.Name;
-            var lambda = (LambdaExpression)StripQuotes(methodCallExpression.Arguments[1]);
-
-            this.Visit(lambda.Body);
+            if (methodCallExpression.Arguments.Count > 1)
+            {                
+                var lambda = (LambdaExpression)StripQuotes(methodCallExpression.Arguments[1]);
+                this.Visit(lambda.Body);
+            }
 
             return methodCallExpression;
         }
@@ -68,35 +67,7 @@ namespace CrossQuery.Linq
         {
             this.Visit(binaryExpression.Left);
 
-            switch (binaryExpression.NodeType)
-            {
-                case ExpressionType.And:
-                    _lambdaExpression.Append("&&");
-                    break;
-                case ExpressionType.Or:
-                    _lambdaExpression.Append("||");
-                    break;
-                case ExpressionType.Equal:
-                    _lambdaExpression.Append("==");
-                    break;
-                case ExpressionType.NotEqual:
-                    _lambdaExpression.Append("<>");
-                    break;
-                case ExpressionType.LessThan:
-                    _lambdaExpression.Append("<");
-                    break;
-                case ExpressionType.LessThanOrEqual:
-                    _lambdaExpression.Append("<=");
-                    break;
-                case ExpressionType.GreaterThan:
-                    _lambdaExpression.Append(">");
-                    break;
-                case ExpressionType.GreaterThanOrEqual:
-                    _lambdaExpression.Append(">=");
-                    break;
-                default:
-                    throw new NotSupportedException($"The binary operator '{binaryExpression.NodeType}' is not supported");
-            }
+            _query.AppendOperator(binaryExpression.NodeType);
 
             this.Visit(binaryExpression.Right);
 
@@ -119,8 +90,10 @@ namespace CrossQuery.Linq
                 if (_dataAdapter.Name != adapterAttribute.AdapterName)
                     return constantExpression;
 
-                _entityType = ((AdapterAttribute)attribute).SourceClass;
+                _query.EntityType = ((AdapterAttribute)attribute).SourceClass;
             }
+            else if (constantExpression.NodeType == ExpressionType.Constant)
+                _query.AddParameter(constantExpression.Value);
 
             return constantExpression;
         }
@@ -136,7 +109,7 @@ namespace CrossQuery.Linq
                     throw new NotImplementedException();
                 }
 
-                _lambdaExpression.Append($" x.{memberExpression.Member.Name}.ToString() ");
+                _query.LambdaExpression.Append($" x.{memberExpression.Member.Name} ");
             }
             else
             {
@@ -146,7 +119,7 @@ namespace CrossQuery.Linq
                     var constantExpression = (ConstantExpression)memberExpression2.Expression;
                     var fieldInfo = ((FieldInfo)memberExpression2.Member).GetValue(constantExpression.Value);
 
-                    _lambdaExpression.Append($" \"{((PropertyInfo)memberExpression.Member).GetValue(fieldInfo, null)}\" ");
+                    _query.AddParameter(((PropertyInfo)memberExpression.Member).GetValue(fieldInfo, null));
                 }
             }
 
