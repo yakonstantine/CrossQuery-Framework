@@ -58,6 +58,7 @@
     <Compile Include="Mock\DomainModel\Student.cs" />
     <Compile Include="Mock\DB_1_Adapter.cs" />
     <Compile Include="Mock\DB_2_Adapter.cs" />
+    <Compile Include="Mock\DomainModel\Teacher.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

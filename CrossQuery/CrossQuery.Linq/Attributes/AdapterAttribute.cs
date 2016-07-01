@@ -6,11 +6,14 @@ namespace CrossQuery.Linq.Attributes
     {
         public AdapterAttribute() { }
 
-        public AdapterAttribute(string adapterName)
+        public AdapterAttribute(string adapterName, Type sourceClass)
         {
             this.AdapterName = adapterName;
+            this.SourceClass = sourceClass;
         }
 
         public string AdapterName { get; set; }
+
+        public Type SourceClass { get; set; }
     }
 }

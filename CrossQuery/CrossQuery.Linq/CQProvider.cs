@@ -18,42 +18,9 @@ namespace CrossQuery.Linq
 
         public override object Execute(Expression expression)
         {
-            var candidates = new Queue<Expression>();
-            candidates.Enqueue(expression);
-
-            while (candidates.Count > 0)
+            foreach(var dataAdapter in _dataAdapters)
             {
-                var expr = candidates.Dequeue();
-
-                if (expr is MethodCallExpression)
-                {
-                    foreach (var argument in ((MethodCallExpression)expr).Arguments)
-                        candidates.Enqueue(argument);
-
-                    continue;
-                }
-
-                if (expr is UnaryExpression)
-                {
-                    candidates.Enqueue(((UnaryExpression)expr).Operand);
-                    continue;
-                }
-
-                if (expr is BinaryExpression)
-                {
-                    var binaryExpression = (BinaryExpression)expr;
-
-                    candidates.Enqueue(binaryExpression.Left);
-                    candidates.Enqueue(binaryExpression.Right);
-
-                    continue;
-                }                
-
-                if (expr is LambdaExpression)
-                {
-                    candidates.Enqueue(((LambdaExpression)expr).Body);
-                    continue;
-                }
+                var ex = new QueryBuilder(dataAdapter, expression).Build();
             }
 
             throw new NotImplementedException();

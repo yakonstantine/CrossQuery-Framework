@@ -175,5 +175,46 @@ namespace CrossQuery.Linq.Tests
             Assert.IsNotNull(result, "Event not found");
             Assert.AreEqual(event1.ID, result.ID, "Wrong event");
         }
+
+        [TestMethod]
+        public void GetGroupByID_GroupFromDB1()
+        {
+            #region Mock.DB_1_Entities.Groups Initialize
+
+            var group1 = new Mock.DB_1_Entities.Group()
+            {
+                ID = Guid.NewGuid(),
+                Name = "Group1"
+            };
+            var group2 = new Mock.DB_1_Entities.Group()
+            {
+                ID = Guid.NewGuid(),
+                Name = "Group2"
+            };
+
+            #endregion
+
+            var db_1_Adapter = new DB_1_Adapter();
+            db_1_Adapter.AddObjectToCollection<Mock.DB_1_Entities.Group>(group1);
+            db_1_Adapter.AddObjectToCollection<Mock.DB_1_Entities.Group>(group2);
+
+            var cqProvider = new CQProvider(db_1_Adapter);
+
+            var result = (new CQSet<Mock.DomainModel.Group>(cqProvider)).FirstOrDefault(g => g.ID == group1.ID);
+
+            Assert.IsNotNull(result, "Event not found");
+            Assert.AreEqual(group1.ID, result.ID, "Wrong group");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void GetTeacherByID_AdapterAttributeIsNotAdded()
+        {
+            var db_1_Adapter = new DB_1_Adapter();
+           
+            var cqProvider = new CQProvider(db_1_Adapter);
+
+            var result = (new CQSet<Mock.DomainModel.Teacher>(cqProvider)).First();
+        }
     }
 }

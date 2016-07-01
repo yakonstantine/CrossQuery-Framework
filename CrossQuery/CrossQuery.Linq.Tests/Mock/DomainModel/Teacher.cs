@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using CrossQuery.Linq.Attributes;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using CrossQuery.Linq.Interfaces;
 
 namespace CrossQuery.Linq.Tests.Mock.DomainModel
 {
-    [Adapter(AdapterName = "DB1", SourceClass = typeof(DB_1_Entities.Group))]
-    public class Group : ICQObject
+    public class Teacher : ICQObject
     {
         public Guid ID { get; set; }
 
         public string Name { get; set; }
-
-        public List<Student> Students { get; set; }
     }
 }

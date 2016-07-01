@@ -10,16 +10,16 @@ namespace CrossQuery.Linq.Attributes
     {
         public AssotiationAttribute() { }
 
-        public AssotiationAttribute(string sourcePropertyName, string targetClassName, string targetPropertyName)
+        public AssotiationAttribute(string sourcePropertyName, Type targetClass, string targetPropertyName)
         {
             this.SourcePropertyName = sourcePropertyName;
-            this.TargetClassName = targetClassName;
+            this.TargetClass = targetClass;
             this.TargetPropertyName = targetPropertyName;
         }
 
         public string SourcePropertyName { get; set; }
 
-        public string TargetClassName { get; set; }
+        public Type TargetClass { get; set; }
 
         public string TargetPropertyName { get; set; }
     }
