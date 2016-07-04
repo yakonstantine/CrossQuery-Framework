@@ -14,8 +14,7 @@ namespace CrossQuery.Linq
         private IDataAdapter _dataAdapter;
         private Expression _expression;
 
-        private Stack<Query> _queryStack = new Stack<Query>();
-        private Query _query;
+        private Query _query = new Query();
 
         internal QueryBuilder(IDataAdapter dataAdapter, Expression sourceExpression)
         {
@@ -27,7 +26,7 @@ namespace CrossQuery.Linq
         {
             this.Visit(_expression);
 
-            return _queryStack.Peek();
+            return _query;
         }
 
         private static Expression StripQuotes(Expression expression)
@@ -40,36 +39,66 @@ namespace CrossQuery.Linq
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            _query = new Query
-            {
-                MethodName = methodCallExpression.Method.Name
-            };
-
-            _queryStack.Push(_query);
-
             this.Visit(methodCallExpression.Arguments[0]);
+
+            if (_query.MethodName == methodCallExpression.Method.Name)
+                _query.AppendBinaryOperator(ExpressionType.AndAlso);
+
+            _query.MethodName = methodCallExpression.Method.Name;
 
             if (methodCallExpression.Arguments.Count > 1)
             {                
                 var lambda = (LambdaExpression)StripQuotes(methodCallExpression.Arguments[1]);
+
                 this.Visit(lambda.Body);
             }
 
             return methodCallExpression;
         }
 
-        protected override Expression VisitUnary(UnaryExpression u)
+        protected override Expression VisitNew(NewExpression newExpression)
         {
-            throw new NotImplementedException();
+            _query.LambdaExpression.Append("new (");
+
+            for (var i = 0; i < newExpression.Arguments.Count; i++)
+            {
+                if (i != 0)
+                    _query.LambdaExpression.Append(", ");
+
+                this.Visit(newExpression.Arguments[i]);
+            }
+
+            _query.LambdaExpression.Append(")");
+
+            return newExpression;
+        }
+
+        protected override Expression VisitUnary(UnaryExpression unaryExpression)
+        {
+            switch (unaryExpression.NodeType)
+            {
+                case ExpressionType.Not:
+                case ExpressionType.NotEqual:
+                    _query.LambdaExpression.Append("!");
+                    break;
+            }
+
+            this.Visit(unaryExpression.Operand);
+
+            return unaryExpression;
         }
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
+            _query.LambdaExpression.Append("(");
+
             this.Visit(binaryExpression.Left);
 
-            _query.AppendOperator(binaryExpression.NodeType);
+            _query.AppendBinaryOperator(binaryExpression.NodeType);
 
             this.Visit(binaryExpression.Right);
+
+            _query.LambdaExpression.Append(")");
 
             return binaryExpression;
         }
@@ -109,7 +138,7 @@ namespace CrossQuery.Linq
                     throw new NotImplementedException();
                 }
 
-                _query.LambdaExpression.Append($" x.{memberExpression.Member.Name} ");
+                _query.LambdaExpression.Append($"x.{memberExpression.Member.Name}");
             }
             else
             {

@@ -231,7 +231,7 @@ namespace CrossQuery.Linq.Tests
             var db1Adapter = new DB1Adapter();
             db1Adapter.AddEntity<Group>(group1);
             db1Adapter.AddEntity<Group>(group2);
-            db1Adapter.AddEntity<Group>(group2);
+            db1Adapter.AddEntity<Group>(group3);
             db1Adapter.SaveChanges();
 
             Mapper.Mapper.CreateConfiguration<Mock.DB1_Context.Group, Mock.DomainModel.Group>()
@@ -248,7 +248,7 @@ namespace CrossQuery.Linq.Tests
         }
 
         [TestMethod]
-        public void GetGroupsWhereNumberEqual1Count_GroupFromDB1()
+        public void GetGroupsWhereNumberEqual1CountWithExpression_GroupFromDB1()
         {
             #region Mock.DB_1_Entities.Groups Initialize
 
@@ -276,7 +276,51 @@ namespace CrossQuery.Linq.Tests
             var db1Adapter = new DB1Adapter();
             db1Adapter.AddEntity<Group>(group1);
             db1Adapter.AddEntity<Group>(group2);
+            db1Adapter.AddEntity<Group>(group3);
+            db1Adapter.SaveChanges();
+
+            Mapper.Mapper.CreateConfiguration<Mock.DB1_Context.Group, Mock.DomainModel.Group>()
+                .AddMap(s => s.Id, d => d.ID)
+                .AddMap(s => s.Name, d => d.Name)
+                .AddMap(s => s.Number, d => d.Number);
+
+            var cqProvider = new CQProvider(db1Adapter);
+
+            var result = (new CQSet<Mock.DomainModel.Group>(cqProvider)).Count(g => g.Number == 1);
+
+            Assert.AreEqual(2, result, "Wrong groups count");
+        }
+
+        [TestMethod]
+        public void GetGroupsWhereNumberEqual1CountWithoutExpression_GroupFromDB1()
+        {
+            #region Mock.DB_1_Entities.Groups Initialize
+
+            var group1 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group1",
+                Number = 1
+            };
+            var group2 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group2",
+                Number = 1
+            };
+            var group3 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group3",
+                Number = 2
+            };
+
+            #endregion
+
+            var db1Adapter = new DB1Adapter();
+            db1Adapter.AddEntity<Group>(group1);
             db1Adapter.AddEntity<Group>(group2);
+            db1Adapter.AddEntity<Group>(group3);
             db1Adapter.SaveChanges();
 
             Mapper.Mapper.CreateConfiguration<Mock.DB1_Context.Group, Mock.DomainModel.Group>()
@@ -289,6 +333,230 @@ namespace CrossQuery.Linq.Tests
             var result = (new CQSet<Mock.DomainModel.Group>(cqProvider)).Where(g => g.Number == 1).Count();
 
             Assert.AreEqual(2, result, "Wrong groups count");
+        }
+
+        [TestMethod]
+        public void GetGroupsByNumberAndIdWhereWithAnd_GroupFromDB1()
+        {
+            #region Mock.DB_1_Entities.Groups Initialize
+
+            var group1 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group1",
+                Number = 1
+            };
+            var group2 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group2",
+                Number = 1
+            };
+            var group3 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group3",
+                Number = 2
+            };
+
+            #endregion
+
+            var db1Adapter = new DB1Adapter();
+            db1Adapter.AddEntity<Group>(group1);
+            db1Adapter.AddEntity<Group>(group2);
+            db1Adapter.AddEntity<Group>(group3);
+            db1Adapter.SaveChanges();
+
+            Mapper.Mapper.CreateConfiguration<Mock.DB1_Context.Group, Mock.DomainModel.Group>()
+                .AddMap(s => s.Id, d => d.ID)
+                .AddMap(s => s.Name, d => d.Name)
+                .AddMap(s => s.Number, d => d.Number);
+
+            var cqProvider = new CQProvider(db1Adapter);
+
+            var result = (new CQSet<Mock.DomainModel.Group>(cqProvider)).Where(g => g.Number == group1.Number && g.ID == group1.Id).First();
+
+            Assert.AreEqual(group1.Id, result.ID, "Wrong group returned");
+        }
+
+        [TestMethod]
+        public void GetGroupsByNumberAndIdDoubleWhere_GroupFromDB1()
+        {
+            #region Mock.DB_1_Entities.Groups Initialize
+
+            var group1 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group1",
+                Number = 1
+            };
+            var group2 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group2",
+                Number = 1
+            };
+            var group3 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group3",
+                Number = 2
+            };
+
+            #endregion
+
+            var db1Adapter = new DB1Adapter();
+            db1Adapter.AddEntity<Group>(group1);
+            db1Adapter.AddEntity<Group>(group2);
+            db1Adapter.AddEntity<Group>(group3);
+            db1Adapter.SaveChanges();
+
+            Mapper.Mapper.CreateConfiguration<Mock.DB1_Context.Group, Mock.DomainModel.Group>()
+                .AddMap(s => s.Id, d => d.ID)
+                .AddMap(s => s.Name, d => d.Name)
+                .AddMap(s => s.Number, d => d.Number);
+
+            var cqProvider = new CQProvider(db1Adapter);
+
+            var result = (new CQSet<Mock.DomainModel.Group>(cqProvider)).Where(g => g.Number == group1.Number).Where(g => g.ID == group1.Id).First();
+
+            Assert.AreEqual(group1.Id, result.ID, "Wrong groups count");
+        }
+
+        [TestMethod]
+        public void GetGroupsByNumberWhereUnaryNot_GroupFromDB1()
+        {
+            #region Mock.DB_1_Entities.Groups Initialize
+
+            var group1 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group1",
+                Number = 1
+            };
+            var group2 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group2",
+                Number = 1
+            };
+            var group3 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group3",
+                Number = 2
+            };
+
+            #endregion
+
+            var db1Adapter = new DB1Adapter();
+            db1Adapter.AddEntity<Group>(group1);
+            db1Adapter.AddEntity<Group>(group2);
+            db1Adapter.AddEntity<Group>(group3);
+            db1Adapter.SaveChanges();
+
+            Mapper.Mapper.CreateConfiguration<Mock.DB1_Context.Group, Mock.DomainModel.Group>()
+                .AddMap(s => s.Id, d => d.ID)
+                .AddMap(s => s.Name, d => d.Name)
+                .AddMap(s => s.Number, d => d.Number);
+
+            var cqProvider = new CQProvider(db1Adapter);
+
+            var result = (new CQSet<Mock.DomainModel.Group>(cqProvider)).Where(g => !(g.Number == 1)).First();
+
+            Assert.AreEqual(group3.Id, result.ID, "Wrong groups count");
+        }
+
+        [TestMethod]
+        public void GetGroupsSelectID_GroupFromDB1()
+        {
+            #region Mock.DB_1_Entities.Groups Initialize
+
+            var group1 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group1",
+                Number = 1
+            };
+            var group2 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group2",
+                Number = 1
+            };
+            var group3 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group3",
+                Number = 2
+            };
+
+            #endregion
+
+            var db1Adapter = new DB1Adapter();
+            db1Adapter.AddEntity<Group>(group1);
+            db1Adapter.AddEntity<Group>(group2);
+            db1Adapter.AddEntity<Group>(group3);
+            db1Adapter.SaveChanges();
+
+            Mapper.Mapper.CreateConfiguration<Mock.DB1_Context.Group, Mock.DomainModel.Group>()
+                .AddMap(s => s.Id, d => d.ID)
+                .AddMap(s => s.Name, d => d.Name)
+                .AddMap(s => s.Number, d => d.Number);
+
+            var cqProvider = new CQProvider(db1Adapter);
+
+            var result = (new CQSet<Mock.DomainModel.Group>(cqProvider)).Select(g => g.ID).ToList();
+
+            Assert.IsTrue(result.Any(r => r == group1.Id), "group1 is not found");
+            Assert.IsTrue(result.Any(r => r == group2.Id), "group2 is not found");
+            Assert.IsTrue(result.Any(r => r == group3.Id), "group3 is not found");
+        }
+
+        [TestMethod]
+        public void GetGroupsSelectNewEntity_GroupFromDB1()
+        {
+            #region Mock.DB_1_Entities.Groups Initialize
+
+            var group1 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group1",
+                Number = 1
+            };
+            var group2 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group2",
+                Number = 1
+            };
+            var group3 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group3",
+                Number = 2
+            };
+
+            #endregion
+
+            var db1Adapter = new DB1Adapter();
+            db1Adapter.AddEntity<Group>(group1);
+            db1Adapter.AddEntity<Group>(group2);
+            db1Adapter.AddEntity<Group>(group3);
+            db1Adapter.SaveChanges();
+
+            Mapper.Mapper.CreateConfiguration<Mock.DB1_Context.Group, Mock.DomainModel.Group>()
+                .AddMap(s => s.Id, d => d.ID)
+                .AddMap(s => s.Name, d => d.Name)
+                .AddMap(s => s.Number, d => d.Number);
+
+            var cqProvider = new CQProvider(db1Adapter);
+
+            var result = (new CQSet<Mock.DomainModel.Group>(cqProvider)).Select(g => new { g.ID, g.Number }).ToList();
+
+            Assert.IsTrue(result.Any(r => r.ID == group1.Id), "group1 is not found");
+            Assert.IsTrue(result.Any(r => r.ID == group2.Id), "group2 is not found");
+            Assert.IsTrue(result.Any(r => r.ID == group3.Id), "group3 is not found");
         }
 
         [TestMethod]

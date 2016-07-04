@@ -28,23 +28,23 @@ namespace CrossQuery.Linq
                 var query = new QueryBuilder(dataAdapter, expression).Build();
 
                 if (query != null)
-                {                    
-                    var getEntitiesMethod = typeof(IDataAdapter)
-                        .GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                        .First(m => m.Name == "GetEntities")
-                        .MakeGenericMethod(new Type[]
-                        {
-                            query.EntityType
-                        });
+                {
+                    var linqResult = GetLinqQueryResult(dataAdapter, expression, query);
 
-                    var dbSet = getEntitiesMethod.Invoke(dataAdapter, null);
+                    var resultType = linqResult.GetType();
+                    var isIEnumerable = false;
 
-                    var linqMethod = typeof(Queryable)
-                        .GetMethods(BindingFlags.Static | BindingFlags.Public)
-                        .First(m => m.Name == query.MethodName && m.GetParameters().Count() == 2);
+                    if (typeof(IEnumerable).IsAssignableFrom(resultType))
+                    {
+                        resultType = resultType.GetGenericArguments()[0];
+                        isIEnumerable = true;
+                    }
 
-                    var linqResult = linqMethod.MakeGenericMethod(query.EntityType)
-                        .Invoke(dbSet, new[] { dbSet, query.GetLambdaExpression() });
+                    if (!resultType.IsClass || resultType == typeof(string))
+                    {
+                        returnedObject = linqResult;
+                        continue;
+                    }
 
                     var mapMethods = typeof(Mapper.Mapper).GetMethods(BindingFlags.Static | BindingFlags.Public)
                         .Where(m => m.Name == "Map");
@@ -52,7 +52,7 @@ namespace CrossQuery.Linq
                     MethodInfo mapMethod = null;
                     Type destinationType = null;
 
-                    if (typeof(IEnumerable).IsAssignableFrom(linqResult.GetType()))
+                    if (isIEnumerable)
                     {
                         mapMethod = mapMethods
                             .First(m => typeof(IEnumerable)
@@ -69,11 +69,46 @@ namespace CrossQuery.Linq
                         destinationType = expression.Type;
                     }
 
-                    returnedObject = mapMethod.MakeGenericMethod(new[] { query.EntityType, destinationType }).Invoke(null, new[] { linqResult });
+                    returnedObject = mapMethod
+                        .MakeGenericMethod(new[] { query.EntityType, destinationType })
+                        .Invoke(null, new[] { linqResult });
                 }
             }
 
             return returnedObject;
+        }
+
+        private object GetLinqQueryResult(IDataAdapter adapter, Expression expression, Query query)
+        {
+            var getEntitiesMethod = typeof(IDataAdapter)
+                       .GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                       .First(m => m.Name == "GetEntities")
+                       .MakeGenericMethod(new Type[]
+                       {
+                            query.EntityType
+                       });
+
+            var dbSet = getEntitiesMethod.Invoke(adapter, null);
+
+            var linqMethod = typeof(Queryable)
+                        .GetMethods(BindingFlags.Static | BindingFlags.Public)
+                        .First(m => m.Name == query.MethodName && m.GetParameters().Count() == 2);
+
+            switch (query.MethodName)
+            {
+                case "Select":
+                    {
+                        return linqMethod
+                            .MakeGenericMethod(query.EntityType, expression.Type.GetGenericArguments()[0])
+                            .Invoke(dbSet, new[] { dbSet, query.GetLambdaExpression() });
+                    }
+                default:
+                    {
+                        return linqMethod
+                            .MakeGenericMethod(query.EntityType)
+                            .Invoke(dbSet, new[] { dbSet, query.GetLambdaExpression() });
+                    }
+            }
         }
     }
 }

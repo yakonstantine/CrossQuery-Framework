@@ -14,33 +14,35 @@ namespace CrossQuery.Linq
         public StringBuilder LambdaExpression { get; set; } = new StringBuilder();
         public List<object> Parameters { get; set; } = new List<object>();
 
-        public void AppendOperator(ExpressionType type)
+        public void AppendBinaryOperator(ExpressionType type)
         {
             switch (type)
             {
                 case ExpressionType.And:
-                    this.LambdaExpression.Append("&&");
+                case ExpressionType.AndAlso:                
+                    this.LambdaExpression.Append(" && ");
                     break;
                 case ExpressionType.Or:
-                    this.LambdaExpression.Append("||");
+                case ExpressionType.OrElse:                
+                    this.LambdaExpression.Append(" || ");
                     break;
                 case ExpressionType.Equal:
-                    this.LambdaExpression.Append("==");
+                    this.LambdaExpression.Append(" == ");
                     break;
                 case ExpressionType.NotEqual:
-                    this.LambdaExpression.Append("<>");
+                    this.LambdaExpression.Append(" <> ");
                     break;
                 case ExpressionType.LessThan:
-                    this.LambdaExpression.Append("<");
+                    this.LambdaExpression.Append(" < ");
                     break;
                 case ExpressionType.LessThanOrEqual:
-                    this.LambdaExpression.Append("<=");
+                    this.LambdaExpression.Append(" <= ");
                     break;
                 case ExpressionType.GreaterThan:
-                    this.LambdaExpression.Append(">");
+                    this.LambdaExpression.Append(" > ");
                     break;
                 case ExpressionType.GreaterThanOrEqual:
-                    this.LambdaExpression.Append(">=");
+                    this.LambdaExpression.Append(" >= ");
                     break;
                 default:
                     throw new NotSupportedException($"The binary operator '{type}' is not supported");
