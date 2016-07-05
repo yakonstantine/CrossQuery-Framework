@@ -533,5 +533,188 @@ namespace CrossQuery.Mapper.Tests
 
             Assert.IsNull(destination.CollectionOfReferenceProperties, "CollectionOfReferenceProperties is not null.");
         }
+
+        [TestMethod]
+        public void MapSourceToDestination_NonGenericMetod_AllOk()
+        {
+            Mapper.CreateConfiguration<MockSource, MockDestination>()
+                .AddMap(s => s.GuidProp, d => d.GuidProp)
+                .AddMap(s => s.StringProp, d => d.StringProp)
+                .AddMap(s => s.IntProp, d => d.IntProp)
+                .AddMap(s => s.DateTimeProp, d => d.DateTimeProp)
+                .AddMap(s => s.DoubleProp, d => d.DoubleProp);
+
+            var source = new MockSource()
+            {
+                GuidProp = Guid.NewGuid(),
+                StringProp = "anyString",
+                IntProp = 1234,
+                DateTimeProp = DateTime.Now,
+                DoubleProp = 123.456
+            };
+
+            var result = (MockDestination)Mapper.Map(typeof(MockSource), typeof(MockDestination), source);
+
+            Assert.AreEqual(source.GuidProp, result.GuidProp, "GuidProp error.");
+            Assert.AreEqual(source.StringProp, result.StringProp, "StringProp error.");
+            Assert.AreEqual(source.IntProp, result.IntProp, "IntProp error.");
+            Assert.AreEqual(source.DateTimeProp, result.DateTimeProp, "DateTimeProp error.");
+            Assert.AreEqual(source.DoubleProp, result.DoubleProp, "DoubleProp error.");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NullReferenceException))]
+        public void MapSourceToDestination_NonGenericMetod_TSourceIsNull()
+        {
+            Mapper.CreateConfiguration<MockSource, MockDestination>()
+                .AddMap(s => s.GuidProp, d => d.GuidProp)
+                .AddMap(s => s.StringProp, d => d.StringProp)
+                .AddMap(s => s.IntProp, d => d.IntProp)
+                .AddMap(s => s.DateTimeProp, d => d.DateTimeProp)
+                .AddMap(s => s.DoubleProp, d => d.DoubleProp);
+
+            var source = new MockSource()
+            {
+                GuidProp = Guid.NewGuid(),
+                StringProp = "anyString",
+                IntProp = 1234,
+                DateTimeProp = DateTime.Now,
+                DoubleProp = 123.456
+            };
+
+            var result = (MockDestination)Mapper.Map(null, typeof(MockDestination), source);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NullReferenceException))]
+        public void MapSourceToDestination_NonGenericMetod_TDestIsNull()
+        {
+            Mapper.CreateConfiguration<MockSource, MockDestination>()
+                .AddMap(s => s.GuidProp, d => d.GuidProp)
+                .AddMap(s => s.StringProp, d => d.StringProp)
+                .AddMap(s => s.IntProp, d => d.IntProp)
+                .AddMap(s => s.DateTimeProp, d => d.DateTimeProp)
+                .AddMap(s => s.DoubleProp, d => d.DoubleProp);
+
+            var source = new MockSource()
+            {
+                GuidProp = Guid.NewGuid(),
+                StringProp = "anyString",
+                IntProp = 1234,
+                DateTimeProp = DateTime.Now,
+                DoubleProp = 123.456
+            };
+
+            var result = (MockDestination)Mapper.Map(typeof(MockSource), null, source);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void MapSourceToDestination_NonGenericMetod_TSourceIsNotClass()
+        {
+            Mapper.CreateConfiguration<MockSource, MockDestination>()
+                .AddMap(s => s.GuidProp, d => d.GuidProp)
+                .AddMap(s => s.StringProp, d => d.StringProp)
+                .AddMap(s => s.IntProp, d => d.IntProp)
+                .AddMap(s => s.DateTimeProp, d => d.DateTimeProp)
+                .AddMap(s => s.DoubleProp, d => d.DoubleProp);
+
+            var source = new MockSource()
+            {
+                GuidProp = Guid.NewGuid(),
+                StringProp = "anyString",
+                IntProp = 1234,
+                DateTimeProp = DateTime.Now,
+                DoubleProp = 123.456
+            };
+
+            var result = (MockDestination)Mapper.Map(typeof(int), typeof(MockDestination), source);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void MapSourceToDestination_NonGenericMetod_TDestIsNotClass()
+        {
+            Mapper.CreateConfiguration<MockSource, MockDestination>()
+                .AddMap(s => s.GuidProp, d => d.GuidProp)
+                .AddMap(s => s.StringProp, d => d.StringProp)
+                .AddMap(s => s.IntProp, d => d.IntProp)
+                .AddMap(s => s.DateTimeProp, d => d.DateTimeProp)
+                .AddMap(s => s.DoubleProp, d => d.DoubleProp);
+
+            var source = new MockSource()
+            {
+                GuidProp = Guid.NewGuid(),
+                StringProp = "anyString",
+                IntProp = 1234,
+                DateTimeProp = DateTime.Now,
+                DoubleProp = 123.456
+            };
+
+            var result = (int)Mapper.Map(typeof(MockSource), typeof(int), source);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void MapSourceToDestination_NonGenericMetod_TDestIsNotImplementDefaulConstructor()
+        {
+            Mapper.CreateConfiguration<MockSource, MockDestination1>()
+                .AddMap(s => s.GuidProp, d => d.GuidProp)
+                .AddMap(s => s.StringProp, d => d.StringProp)
+                .AddMap(s => s.IntProp, d => d.IntProp);
+
+            var source = new MockSource()
+            {
+                GuidProp = Guid.NewGuid(),
+                StringProp = "anyString",
+                IntProp = 1234
+            };
+
+            var result = (MockDestinationWithoutDefaultConstructor)Mapper.Map(typeof(MockSource), typeof(MockDestinationWithoutDefaultConstructor), source);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NullReferenceException))]
+        public void MapSourceToDestination_NonGenericMetod_SourceObjIsNull()
+        {
+            Mapper.CreateConfiguration<MockSource, MockDestination>()
+                .AddMap(s => s.GuidProp, d => d.GuidProp)
+                .AddMap(s => s.StringProp, d => d.StringProp)
+                .AddMap(s => s.IntProp, d => d.IntProp)
+                .AddMap(s => s.DateTimeProp, d => d.DateTimeProp)
+                .AddMap(s => s.DoubleProp, d => d.DoubleProp);
+
+            var source = new MockSource()
+            {
+                GuidProp = Guid.NewGuid(),
+                StringProp = "anyString",
+                IntProp = 1234,
+                DateTimeProp = DateTime.Now,
+                DoubleProp = 123.456
+            };
+
+            var result = (MockDestination)Mapper.Map(typeof(MockSource), typeof(MockDestination), null);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void MapSourceToDestination_NonGenericMetod_TSourceAndSourceObjHaveDifferentTypes()
+        {
+            Mapper.CreateConfiguration<MockSource, MockDestination>()
+                .AddMap(s => s.GuidProp, d => d.GuidProp)
+                .AddMap(s => s.StringProp, d => d.StringProp)
+                .AddMap(s => s.IntProp, d => d.IntProp)
+                .AddMap(s => s.DateTimeProp, d => d.DateTimeProp)
+                .AddMap(s => s.DoubleProp, d => d.DoubleProp);
+
+            var source = new MockSource1()
+            {
+                GuidProp = Guid.NewGuid(),
+                StringProp = "anyString",
+                IntProp = 1234
+            };
+
+            var result = (MockDestination)Mapper.Map(typeof(MockSource), typeof(MockDestination), source);
+        }
     }
 }

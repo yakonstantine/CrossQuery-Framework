@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Mock\MockDestination.cs" />
     <Compile Include="Mock\MockDestination1.cs" />
+    <Compile Include="Mock\MockDestinationWithoutDefaultConstructor.cs" />
     <Compile Include="Mock\MockSource.cs" />
     <Compile Include="Mock\MockSource1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

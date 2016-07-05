@@ -22,8 +22,8 @@ namespace CrossQuery.Mapper
             if (mapperConfiguration == null)
                 throw new NotImplementedException($"Mapper for {typeof(TSource).Name} and {typeof(TDest).Name} is not implemented");
 
-            return ((MapperConfiguration<TSource, TDest>)mapperConfiguration).Map(source);
-        }
+            return ((IMapperConfiguration<TSource, TDest>)mapperConfiguration).Map(source);
+        }        
 
         public static IEnumerable<TDest> Map<TSource, TDest>(IQueryable<TSource> sourceCollection)
             where TDest : class, new()
@@ -42,6 +42,35 @@ namespace CrossQuery.Mapper
                 .Select(s => ((MapperConfiguration<TSource, TDest>)mapperConfiguration).Map(s))
                 .AsParallel()
                 .ToList();
+        }
+
+        // ToDo if source is array
+        public static object Map(Type TSource, Type TDest, object source)
+        {
+            if (TSource == null)
+                throw new NullReferenceException("TSource is null");
+
+            if (TDest == null)
+                throw new NullReferenceException("TDest is null");
+
+            if (!TSource.IsClass)
+                throw new ArgumentException($"{TSource.Name} is not a class");
+
+            if (!TDest.IsClass || TDest.GetConstructor(Type.EmptyTypes) == null)
+                throw new ArgumentException($"{TDest.Name} is not a class or is not inmpemented default constructor");
+
+            if (source == null)
+                throw new NullReferenceException("source is null");
+
+            if (source.GetType() != TSource)
+                throw new ArgumentException($"source is not a {TSource.Name}");
+
+            var mapperConfiguration = GetConfiguration(TSource, TDest);
+
+            if (mapperConfiguration == null)
+                throw new NotImplementedException($"Mapper for {TSource.Name} and {TDest.Name} is not implemented");
+
+            return mapperConfiguration.Map(source);
         }
 
         public static IMapperConfiguration<TSource, TDest> CreateConfiguration<TSource, TDest>()
@@ -69,7 +98,15 @@ namespace CrossQuery.Mapper
             where TSource : class
 
         {
-            return _mapperConfigurations.FirstOrDefault(mc => mc.GetDestinationType() == typeof(TDest) && mc.GetSourceType() == typeof(TSource));
+            return _mapperConfigurations
+                .FirstOrDefault(mc => mc.GetDestinationType() == typeof(TDest) && mc.GetSourceType() == typeof(TSource));
+        }
+
+        private static IMapperConfiguration GetConfiguration(Type TSource, Type TDest)
+
+        {
+            return _mapperConfigurations
+                .FirstOrDefault(mc => mc.GetDestinationType() == TDest && mc.GetSourceType() == TSource);
         }
     }
 }

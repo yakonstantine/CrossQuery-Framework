@@ -21,14 +21,20 @@ namespace CrossQuery.Mapper.Internal
             });
         }
 
-        internal TDest Map(TSource sourceObj) 
+        object IMapperConfiguration.Map(object source)
         {
-            var detination = new TDest();
+            dynamic detinationObj = Activator.CreateInstance(GetDestinationType());
+            dynamic sourceObj = source;
 
             foreach (var mapOperation in _mapOperations)
-                mapOperation.Map(sourceObj, detination);
+                mapOperation.Map(sourceObj, detinationObj);
 
-            return detination;
+            return detinationObj;
+        }
+
+        public TDest Map(TSource sourceObj) 
+        {
+            return (TDest)((IMapperConfiguration)this).Map(sourceObj);
         }
 
         public Type GetDestinationType()
@@ -39,6 +45,6 @@ namespace CrossQuery.Mapper.Internal
         public Type GetSourceType()
         {
             return this.GetType().GetGenericArguments()[0];
-        }
+        }        
     }
 }
