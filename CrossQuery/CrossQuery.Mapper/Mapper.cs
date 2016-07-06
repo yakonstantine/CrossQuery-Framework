@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using CrossQuery.Mapper.Interfaces;
@@ -44,7 +45,6 @@ namespace CrossQuery.Mapper
                 .ToList();
         }
 
-        // ToDo if source is array
         public static object Map(Type TSource, Type TDest, object source)
         {
             if (TSource == null)
@@ -53,22 +53,51 @@ namespace CrossQuery.Mapper
             if (TDest == null)
                 throw new NullReferenceException("TDest is null");
 
-            if (!TSource.IsClass)
-                throw new ArgumentException($"{TSource.Name} is not a class");
-
-            if (!TDest.IsClass || TDest.GetConstructor(Type.EmptyTypes) == null)
-                throw new ArgumentException($"{TDest.Name} is not a class or is not inmpemented default constructor");
-
             if (source == null)
                 throw new NullReferenceException("source is null");
 
-            if (source.GetType() != TSource)
-                throw new ArgumentException($"source is not a {TSource.Name}");
+            Type sourceType = TSource;
+            Type destinationType = TDest;
+            Type sourceObjectType = source.GetType();
 
-            var mapperConfiguration = GetConfiguration(TSource, TDest);
+            bool sourceTypeIsArray = false;
+
+            if (typeof(IEnumerable).IsAssignableFrom(TSource))
+            {
+                if (!TSource.IsGenericType || !TDest.IsGenericType)
+                    throw new ArgumentException("TSource or TDest is non generic array");
+
+                sourceTypeIsArray = true;
+
+                sourceType = sourceType.GetGenericArguments()[0];
+                destinationType = destinationType.GetGenericArguments()[0];
+                sourceObjectType = sourceObjectType.GetGenericArguments()[0];
+            }
+
+            if (!sourceType.IsClass)
+                throw new ArgumentException($"{sourceType.Name} is not a class");
+
+            if (!destinationType.IsClass || destinationType.GetConstructor(Type.EmptyTypes) == null)
+                throw new ArgumentException($"{destinationType.Name} is not a class or is not inmpemented default constructor");            
+
+            if (sourceObjectType != sourceType)
+                throw new ArgumentException($"source is not a {sourceType.Name}");
+
+            var mapperConfiguration = GetConfiguration(sourceType, destinationType);
 
             if (mapperConfiguration == null)
-                throw new NotImplementedException($"Mapper for {TSource.Name} and {TDest.Name} is not implemented");
+                throw new NotImplementedException($"Mapper for {sourceType.Name} and {destinationType.Name} is not implemented");
+
+            if (sourceTypeIsArray)
+            {
+                var genericListType = typeof(List<>).MakeGenericType(new[] { destinationType });
+                var desinationList = Activator.CreateInstance(genericListType);
+
+                foreach (var sourceObj in (IEnumerable)source)
+                    genericListType.GetMethod("Add").Invoke(desinationList, new[] { mapperConfiguration.Map(sourceObj) });
+
+                return desinationList;
+            }
 
             return mapperConfiguration.Map(source);
         }

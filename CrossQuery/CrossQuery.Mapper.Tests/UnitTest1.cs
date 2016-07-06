@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using CrossQuery.Mapper.Extensions;
@@ -715,6 +716,137 @@ namespace CrossQuery.Mapper.Tests
             };
 
             var result = (MockDestination)Mapper.Map(typeof(MockSource), typeof(MockDestination), source);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void MapSourceToDestination_NonGenericMetod_TSourceIsArrayNonGenericType()
+        {
+            Mapper.CreateConfiguration<MockSource1, MockDestination1>()
+                .AddMap(s => s.GuidProp, d => d.GuidProp)
+                .AddMap(s => s.StringProp, d => d.StringProp)
+                .AddMap(s => s.IntProp, d => d.IntProp);
+
+            Mapper.CreateConfiguration<MockSource, MockDestination>()
+                .AddMap(s => s.GuidProp, d => d.GuidProp)
+                .AddMap(s => s.StringProp, d => d.StringProp)
+                .AddMap(s => s.IntProp, d => d.IntProp)
+                .AddMap(s => s.DateTimeProp, d => d.DateTimeProp)
+                .AddMap(s => s.DoubleProp, d => d.DoubleProp)
+                .AddMap(s => s.ReferenceProperty, d => d.ReferenceProperty);
+
+            var source1 = new MockSource()
+            {
+                GuidProp = Guid.NewGuid(),
+                StringProp = "anyString",
+                IntProp = 1234,
+                DateTimeProp = DateTime.Now,
+                DoubleProp = 123.456,
+                ReferenceProperty = new MockSource1()
+                {
+                    GuidProp = Guid.NewGuid(),
+                    StringProp = "anyRefString",
+                    IntProp = 456
+                }
+            };
+
+            var source2 = new MockSource()
+            {
+                GuidProp = Guid.NewGuid(),
+                StringProp = "anyString",
+                IntProp = 1234,
+                DateTimeProp = DateTime.Now,
+                DoubleProp = 123.456,
+                ReferenceProperty = new MockSource1()
+                {
+                    GuidProp = Guid.NewGuid(),
+                    StringProp = "anyRefString",
+                    IntProp = 456
+                }
+            };
+
+            var result = (IEnumerable)Mapper.Map(
+                typeof(IEnumerable),
+                typeof(IEnumerable),
+                (new List<MockSource>() { source1, source2 }).AsQueryable());
+        }
+
+        [TestMethod]
+        public void MapSourceToDestination_NonGenericMetod_TSourceIsArray_AllOk()
+        {
+            Mapper.CreateConfiguration<MockSource1, MockDestination1>()
+                .AddMap(s => s.GuidProp, d => d.GuidProp)
+                .AddMap(s => s.StringProp, d => d.StringProp)
+                .AddMap(s => s.IntProp, d => d.IntProp);
+
+            Mapper.CreateConfiguration<MockSource, MockDestination>()
+                .AddMap(s => s.GuidProp, d => d.GuidProp)
+                .AddMap(s => s.StringProp, d => d.StringProp)
+                .AddMap(s => s.IntProp, d => d.IntProp)
+                .AddMap(s => s.DateTimeProp, d => d.DateTimeProp)
+                .AddMap(s => s.DoubleProp, d => d.DoubleProp)
+                .AddMap(s => s.ReferenceProperty, d => d.ReferenceProperty);
+
+            var source1 = new MockSource()
+            {
+                GuidProp = Guid.NewGuid(),
+                StringProp = "anyString",
+                IntProp = 1234,
+                DateTimeProp = DateTime.Now,
+                DoubleProp = 123.456,
+                ReferenceProperty = new MockSource1()
+                {
+                    GuidProp = Guid.NewGuid(),
+                    StringProp = "anyRefString",
+                    IntProp = 456
+                }
+            };
+
+            var source2 = new MockSource()
+            {
+                GuidProp = Guid.NewGuid(),
+                StringProp = "anyString",
+                IntProp = 1234,
+                DateTimeProp = DateTime.Now,
+                DoubleProp = 123.456,
+                ReferenceProperty = new MockSource1()
+                {
+                    GuidProp = Guid.NewGuid(),
+                    StringProp = "anyRefString",
+                    IntProp = 456
+                }
+            };
+
+            var result = (IEnumerable<MockDestination>)Mapper.Map(
+                typeof(IEnumerable<MockSource>), 
+                typeof(IEnumerable<MockDestination>), 
+                (new List<MockSource>() { source1, source2 }).AsQueryable());
+
+            Assert.AreEqual(2, result.Count(), "Count error.");
+
+            var destination = result.FirstOrDefault(d => d.GuidProp == source1.GuidProp);
+
+            Assert.IsNotNull(destination, "destination1 is null.");
+            Assert.AreEqual(source1.StringProp, destination.StringProp, "source1 StringProp error.");
+            Assert.AreEqual(source1.IntProp, destination.IntProp, "source1 IntProp error.");
+            Assert.AreEqual(source1.DateTimeProp, destination.DateTimeProp, "source1 DateTimeProp error.");
+            Assert.AreEqual(source1.DoubleProp, destination.DoubleProp, "source1 DoubleProp error.");
+
+            Assert.AreEqual(source1.ReferenceProperty.GuidProp, destination.ReferenceProperty.GuidProp, "source1 ReferenceProperty.GuidProp error.");
+            Assert.AreEqual(source1.ReferenceProperty.StringProp, destination.ReferenceProperty.StringProp, "source1 ReferenceProperty.StringProp error.");
+            Assert.AreEqual(source1.ReferenceProperty.IntProp, destination.ReferenceProperty.IntProp, "source1 ReferenceProperty.IntProp error.");
+
+            destination = result.FirstOrDefault(d => d.GuidProp == source2.GuidProp);
+
+            Assert.IsNotNull(destination, "destination2 is null.");
+            Assert.AreEqual(source2.StringProp, destination.StringProp, "source2 StringProp error.");
+            Assert.AreEqual(source2.IntProp, destination.IntProp, "source2 IntProp error.");
+            Assert.AreEqual(source2.DateTimeProp, destination.DateTimeProp, "source2 DateTimeProp error.");
+            Assert.AreEqual(source2.DoubleProp, destination.DoubleProp, "source2 DoubleProp error.");
+
+            Assert.AreEqual(source2.ReferenceProperty.GuidProp, destination.ReferenceProperty.GuidProp, "source2 ReferenceProperty.GuidProp error.");
+            Assert.AreEqual(source2.ReferenceProperty.StringProp, destination.ReferenceProperty.StringProp, "source2 ReferenceProperty.StringProp error.");
+            Assert.AreEqual(source2.ReferenceProperty.IntProp, destination.ReferenceProperty.IntProp, "source2 ReferenceProperty.IntProp error.");
         }
     }
 }
