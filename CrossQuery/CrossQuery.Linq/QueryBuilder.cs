@@ -65,7 +65,10 @@ namespace CrossQuery.Linq
                 if (i != 0)
                     _query.LambdaExpression.Append(", ");
 
-                this.Visit(newExpression.Arguments[i]);
+                var argument = newExpression.Arguments[i];
+
+                this.Visit(argument);
+                _query.LambdaExpression.Append($" as {((MemberExpression)argument).Member.Name}");
             }
 
             _query.LambdaExpression.Append(")");
@@ -138,7 +141,7 @@ namespace CrossQuery.Linq
                     throw new NotImplementedException();
                 }
 
-                _query.LambdaExpression.Append($"x.{memberExpression.Member.Name}");
+                _query.LambdaExpression.Append($"{memberExpression.Member.Name}");
             }
             else
             {

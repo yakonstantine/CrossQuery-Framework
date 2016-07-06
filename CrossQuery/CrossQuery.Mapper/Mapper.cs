@@ -60,17 +60,11 @@ namespace CrossQuery.Mapper
             Type destinationType = TDest;
             Type sourceObjectType = source.GetType();
 
-            bool sourceTypeIsArray = false;
+            bool sourceIsArray = false;
 
-            if (typeof(IEnumerable).IsAssignableFrom(TSource))
+            if (typeof(IEnumerable).IsAssignableFrom(sourceObjectType))
             {
-                if (!TSource.IsGenericType || !TDest.IsGenericType)
-                    throw new ArgumentException("TSource or TDest is non generic array");
-
-                sourceTypeIsArray = true;
-
-                sourceType = sourceType.GetGenericArguments()[0];
-                destinationType = destinationType.GetGenericArguments()[0];
+                sourceIsArray = true;
                 sourceObjectType = sourceObjectType.GetGenericArguments()[0];
             }
 
@@ -81,14 +75,14 @@ namespace CrossQuery.Mapper
                 throw new ArgumentException($"{destinationType.Name} is not a class or is not inmpemented default constructor");            
 
             if (sourceObjectType != sourceType)
-                throw new ArgumentException($"source is not a {sourceType.Name}");
+                throw new ArgumentException($"Source object is not a {sourceType.Name}");
 
             var mapperConfiguration = GetConfiguration(sourceType, destinationType);
 
             if (mapperConfiguration == null)
                 throw new NotImplementedException($"Mapper for {sourceType.Name} and {destinationType.Name} is not implemented");
 
-            if (sourceTypeIsArray)
+            if (sourceIsArray)
             {
                 var genericListType = typeof(List<>).MakeGenericType(new[] { destinationType });
                 var desinationList = Activator.CreateInstance(genericListType);

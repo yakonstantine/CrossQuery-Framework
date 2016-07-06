@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
+
 
 namespace CrossQuery.Linq
 {
@@ -55,14 +58,51 @@ namespace CrossQuery.Linq
             this.Parameters.Add(parameter);
         }
 
-        public Expression GetLambdaExpression()
+        public object Execute(IQueryable collection)
+        {
+            var method = typeof(DynamicQueryable)
+                .GetMethods(BindingFlags.Static | BindingFlags.Public)
+                .FirstOrDefault(m => m.Name == this.MethodName && m.ReturnType == typeof(IQueryable));
+
+            if (method != null)
+            {
+                return method
+                .Invoke(collection,
+                new object[]
+                {
+                    collection,
+                    this.LambdaExpression.ToString(),
+                    this.Parameters.ToArray()
+                });
+            }
+
+            method = typeof(Queryable)
+                .GetMethods(BindingFlags.Static | BindingFlags.Public)
+                .FirstOrDefault(m => m.Name == this.MethodName && m.GetParameters().Count() == 2);
+
+            if (method != null)
+            {
+                return method
+                    .MakeGenericMethod(this.EntityType)
+                    .Invoke(collection,
+                    new object[]
+                    {
+                        collection,
+                        this.CreateLambdaExpression()
+                    });
+            }
+
+            throw new NotImplementedException($"Method name - {this.MethodName}");
+        }
+
+        private Expression CreateLambdaExpression()
         {
             return System.Linq.Dynamic.DynamicExpression.ParseLambda(
-                new[] { Expression.Parameter(this.EntityType, "x") },
-                null,
-                this.LambdaExpression.ToString(),
-                this.Parameters.ToArray()
-                );
+                 new[] { Expression.Parameter(this.EntityType) },
+                 null,
+                 this.LambdaExpression.ToString(),
+                 this.Parameters.ToArray()
+                 );
         }
     }
 }

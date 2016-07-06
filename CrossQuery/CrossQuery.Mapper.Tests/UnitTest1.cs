@@ -772,6 +772,112 @@ namespace CrossQuery.Mapper.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void MapSourceToDestination_NonGenericMetod_TSourceIsArrayDestinatiniIsNotArray()
+        {
+            Mapper.CreateConfiguration<MockSource1, MockDestination1>()
+                .AddMap(s => s.GuidProp, d => d.GuidProp)
+                .AddMap(s => s.StringProp, d => d.StringProp)
+                .AddMap(s => s.IntProp, d => d.IntProp);
+
+            Mapper.CreateConfiguration<MockSource, MockDestination>()
+                .AddMap(s => s.GuidProp, d => d.GuidProp)
+                .AddMap(s => s.StringProp, d => d.StringProp)
+                .AddMap(s => s.IntProp, d => d.IntProp)
+                .AddMap(s => s.DateTimeProp, d => d.DateTimeProp)
+                .AddMap(s => s.DoubleProp, d => d.DoubleProp)
+                .AddMap(s => s.ReferenceProperty, d => d.ReferenceProperty);
+
+            var source1 = new MockSource()
+            {
+                GuidProp = Guid.NewGuid(),
+                StringProp = "anyString",
+                IntProp = 1234,
+                DateTimeProp = DateTime.Now,
+                DoubleProp = 123.456,
+                ReferenceProperty = new MockSource1()
+                {
+                    GuidProp = Guid.NewGuid(),
+                    StringProp = "anyRefString",
+                    IntProp = 456
+                }
+            };
+
+            var source2 = new MockSource()
+            {
+                GuidProp = Guid.NewGuid(),
+                StringProp = "anyString",
+                IntProp = 1234,
+                DateTimeProp = DateTime.Now,
+                DoubleProp = 123.456,
+                ReferenceProperty = new MockSource1()
+                {
+                    GuidProp = Guid.NewGuid(),
+                    StringProp = "anyRefString",
+                    IntProp = 456
+                }
+            };
+
+            var result = (IEnumerable)Mapper.Map(
+                typeof(IEnumerable),
+                typeof(MockDestination),
+                (new List<MockSource>() { source1, source2 }).AsQueryable());
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void MapSourceToDestination_NonGenericMetod_TSourceIsNotArrayDestinatiniIsArray()
+        {
+            Mapper.CreateConfiguration<MockSource1, MockDestination1>()
+                .AddMap(s => s.GuidProp, d => d.GuidProp)
+                .AddMap(s => s.StringProp, d => d.StringProp)
+                .AddMap(s => s.IntProp, d => d.IntProp);
+
+            Mapper.CreateConfiguration<MockSource, MockDestination>()
+                .AddMap(s => s.GuidProp, d => d.GuidProp)
+                .AddMap(s => s.StringProp, d => d.StringProp)
+                .AddMap(s => s.IntProp, d => d.IntProp)
+                .AddMap(s => s.DateTimeProp, d => d.DateTimeProp)
+                .AddMap(s => s.DoubleProp, d => d.DoubleProp)
+                .AddMap(s => s.ReferenceProperty, d => d.ReferenceProperty);
+
+            var source1 = new MockSource()
+            {
+                GuidProp = Guid.NewGuid(),
+                StringProp = "anyString",
+                IntProp = 1234,
+                DateTimeProp = DateTime.Now,
+                DoubleProp = 123.456,
+                ReferenceProperty = new MockSource1()
+                {
+                    GuidProp = Guid.NewGuid(),
+                    StringProp = "anyRefString",
+                    IntProp = 456
+                }
+            };
+
+            var source2 = new MockSource()
+            {
+                GuidProp = Guid.NewGuid(),
+                StringProp = "anyString",
+                IntProp = 1234,
+                DateTimeProp = DateTime.Now,
+                DoubleProp = 123.456,
+                ReferenceProperty = new MockSource1()
+                {
+                    GuidProp = Guid.NewGuid(),
+                    StringProp = "anyRefString",
+                    IntProp = 456
+                }
+            };
+
+            var result = (IEnumerable)Mapper.Map(
+                typeof(MockSource),
+                typeof(IEnumerable),
+                (new List<MockSource>() { source1, source2 }).AsQueryable());
+        }
+
+        [TestMethod]
         public void MapSourceToDestination_NonGenericMetod_TSourceIsArray_AllOk()
         {
             Mapper.CreateConfiguration<MockSource1, MockDestination1>()
@@ -818,8 +924,8 @@ namespace CrossQuery.Mapper.Tests
             };
 
             var result = (IEnumerable<MockDestination>)Mapper.Map(
-                typeof(IEnumerable<MockSource>), 
-                typeof(IEnumerable<MockDestination>), 
+                typeof(MockSource), 
+                typeof(MockDestination), 
                 (new List<MockSource>() { source1, source2 }).AsQueryable());
 
             Assert.AreEqual(2, result.Count(), "Count error.");
