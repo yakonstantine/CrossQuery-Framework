@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using CrossQuery.Mapper.Interfaces;
 
 namespace CrossQuery.Mapper.Internal
 {
@@ -11,6 +12,8 @@ namespace CrossQuery.Mapper.Internal
         where TDest : class, new()
         where TSource : class
     {
+        internal IMapperConfiguration MapperConfiguration { get; set; }
+
         internal Expression<Func<TDest, object>> DestinationProperyExpression;
         internal Func<TSource, object> GetSourcePropertyValue;
 
@@ -25,38 +28,27 @@ namespace CrossQuery.Mapper.Internal
             var destinationPropertyInfo = GetPropertyInfo(DestinationProperyExpression.Body);
             var sourcePropertyValue = GetSourcePropertyValue(sourceObj);
 
+            var sourcePropertyType = sourcePropertyValue.GetType();
+            var destinationPropertyType = destinationPropertyInfo.PropertyType;
+
+            if (IsCollection(destinationPropertyInfo.PropertyType) 
+                && IsCollection(sourcePropertyValue.GetType()))
+            {
+                sourcePropertyType = sourcePropertyType.GetGenericArguments().First();
+                destinationPropertyType = destinationPropertyType.GetGenericArguments().First();
+            }
+
             try
             {
-                if (IsCollection(destinationPropertyInfo.PropertyType)
-                && IsCollection(sourcePropertyValue.GetType()))
+                if (IsReferenceType(sourcePropertyType) && IsReferenceType(destinationPropertyType))
                 {
                     sourcePropertyValue = typeof(Mapper)
-                        .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                        .First(m => m.Name == "Map" && IsCollection(m.ReturnType))
-                        .MakeGenericMethod(new Type[]
+                        .GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                        .First(m => m.Name == "Map" && m.ReturnType == typeof(object))
+                        .Invoke(this.MapperConfiguration.Mapper, new[]
                         {
-                            sourcePropertyValue.GetType().GetGenericArguments().First(),
-                            destinationPropertyInfo.PropertyType.GetGenericArguments().First()
-                        })
-                        .Invoke(null, new[]
-                        {
-                            ((IEnumerable)sourcePropertyValue).AsQueryable()
-                        });
-                }
-                else if (IsReferenceType(destinationPropertyInfo.PropertyType)
-                && IsReferenceType(sourcePropertyValue.GetType()))
-                {
-
-                    sourcePropertyValue = typeof(Mapper)
-                        .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                        .First(m => m.Name == "Map" && !IsCollection(m.ReturnType))
-                        .MakeGenericMethod(new Type[]
-                        {
-                            sourcePropertyValue.GetType(),
-                            destinationPropertyInfo.PropertyType
-                        })
-                        .Invoke(null, new[]
-                        {
+                            sourcePropertyType,
+                            destinationPropertyType,
                             sourcePropertyValue
                         });
                 }
@@ -72,7 +64,7 @@ namespace CrossQuery.Mapper.Internal
             }
             catch (ArgumentException ex)
             {
-                throw new ArgumentException($"Missing cast for property {destinationPropertyInfo.Name} to {sourcePropertyValue.GetType().Name}. {ex.Message}");
+                throw new ArgumentException($"Missing cast for property {destinationPropertyInfo.Name} to {sourcePropertyType.Name}. {ex.Message}");
             }
         }
 

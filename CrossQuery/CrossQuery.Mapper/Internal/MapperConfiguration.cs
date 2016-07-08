@@ -11,11 +11,26 @@ namespace CrossQuery.Mapper.Internal
         where TSource : class
     {
         private List<MapOperation<TSource, TDest>> _mapOperations = new List<MapOperation<TSource, TDest>>();
+        private Mapper _mapper;
+
+        internal MapperConfiguration(Mapper mapper)
+        {
+            _mapper = mapper;
+        }
+
+        public Mapper Mapper
+        {
+            get
+            {
+                return _mapper;
+            }
+        }
 
         internal void AddNewOperation(Func<TSource, object> getSourcePropertyValue, Expression<Func<TDest, object>> destinationProperyExpression)
         {
             _mapOperations.Add(new MapOperation<TSource, TDest>()
             {
+                MapperConfiguration = this,
                 DestinationProperyExpression = destinationProperyExpression,
                 GetSourcePropertyValue = getSourcePropertyValue
             });

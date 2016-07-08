@@ -12,9 +12,11 @@ namespace CrossQuery.Linq
     public class CQProvider : BaseCQProvider
     {
         private IDataAdapter[] _dataAdapters;
+        private Mapper.Mapper _mapper;
 
-        public CQProvider(params IDataAdapter[] dataAdapters)
+        public CQProvider(Mapper.Mapper mapper, params IDataAdapter[] dataAdapters)
         {
+            _mapper = mapper;
             _dataAdapters = dataAdapters;
         }
 
@@ -56,7 +58,7 @@ namespace CrossQuery.Linq
                     continue;
                 }
 
-                var mapMethod = typeof(Mapper.Mapper).GetMethods(BindingFlags.Static | BindingFlags.Public)
+                var mapMethod = typeof(Mapper.Mapper).GetMethods(BindingFlags.Instance | BindingFlags.Public)
                     .First(m => m.Name == "Map" && m.ReturnType == typeof(object));
 
                 var destinationType = expression.Type;
@@ -64,7 +66,7 @@ namespace CrossQuery.Linq
                 if (typeof(IEnumerable).IsAssignableFrom(destinationType))
                     destinationType = destinationType.GetGenericArguments()[0];
 
-                returnedObject = mapMethod.Invoke(null, new object[] { query.EntityType, destinationType, queryExecuteResult });
+                returnedObject = mapMethod.Invoke(_mapper, new object[] { query.EntityType, destinationType, queryExecuteResult });
             }
 
             return returnedObject;

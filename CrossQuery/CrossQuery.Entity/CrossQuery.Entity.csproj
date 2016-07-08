@@ -53,6 +53,10 @@
       <Project>{022f708d-b3b3-45f9-b911-964350c16c24}</Project>
       <Name>CrossQuery.Linq</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CrossQuery.Mapper\CrossQuery.Mapper.csproj">
+      <Project>{7eb04099-2914-4d88-b737-5d88b512ae1a}</Project>
+      <Name>CrossQuery.Mapper</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

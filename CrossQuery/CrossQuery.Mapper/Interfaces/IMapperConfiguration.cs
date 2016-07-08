@@ -8,6 +8,8 @@ namespace CrossQuery.Mapper.Interfaces
 {
     public interface IMapperConfiguration
     {
+        Mapper Mapper { get; }
+
         Type GetDestinationType();
         Type GetSourceType();
 

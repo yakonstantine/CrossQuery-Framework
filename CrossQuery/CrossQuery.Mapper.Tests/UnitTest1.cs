@@ -11,41 +11,12 @@ namespace CrossQuery.Mapper.Tests
     [TestClass]
     public class UnitTest1
     {
-        [TestInitialize]
-        public void Initialize()
-        {
-            Mapper.ClearConfiguration();
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(NotImplementedException))]
-        public void MapperClearConfiguration()
-        {
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
-                .AddMap(s => s.GuidProp, d => d.GuidProp)
-                .AddMap(s => s.StringProp, d => d.StringProp)
-                .AddMap(s => s.IntProp, d => d.IntProp)
-                .AddMap(s => s.DateTimeProp, d => d.DateTimeProp)
-                .AddMap(s => s.DoubleProp, d => d.DoubleProp);
-
-            var source = new MockSource()
-            {
-                GuidProp = Guid.NewGuid(),
-                StringProp = "anyString",
-                IntProp = 1234,
-                DateTimeProp = DateTime.Now,
-                DoubleProp = 123.456
-            };
-
-            Mapper.ClearConfiguration();
-
-            var result = Mapper.Map<MockSource, MockDestination>(source);
-        }
-
         [TestMethod]
         public void MapSourceToDestination_AllOk()
         {
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -61,7 +32,7 @@ namespace CrossQuery.Mapper.Tests
                 DoubleProp = 123.456
             };
 
-            var result = Mapper.Map<MockSource, MockDestination>(source);
+            var result = mapper.Map<MockSource, MockDestination>(source);
 
             Assert.AreEqual(source.GuidProp, result.GuidProp, "GuidProp error.");
             Assert.AreEqual(source.StringProp, result.StringProp, "StringProp error.");
@@ -74,7 +45,9 @@ namespace CrossQuery.Mapper.Tests
         [ExpectedException(typeof(NotImplementedException))]
         public void MapperForSourceIsNotImplemented_Exception()
         {
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -88,14 +61,16 @@ namespace CrossQuery.Mapper.Tests
                 IntProp = 1234
             };
 
-            var result = Mapper.Map<MockSource1, MockDestination>(source);
+            var result = mapper.Map<MockSource1, MockDestination>(source);
         }
 
         [TestMethod]
         [ExpectedException(typeof(NotImplementedException))]
         public void MapperForDestinationIsNotImplemented_Exception()
         {
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -111,13 +86,15 @@ namespace CrossQuery.Mapper.Tests
                 DoubleProp = 123.456
             };
 
-            var result = Mapper.Map<MockSource, MockDestination1>(source);
+            var result = mapper.Map<MockSource, MockDestination1>(source);
         }
 
         [TestMethod]
         public void MapperForPropertyIsImplemented_PropertyHasDefultValue()
         {
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -132,7 +109,7 @@ namespace CrossQuery.Mapper.Tests
                 DoubleProp = 123.456
             };
 
-            var result = Mapper.Map<MockSource, MockDestination>(source);
+            var result = mapper.Map<MockSource, MockDestination>(source);
 
             Assert.AreEqual(default(double), result.DoubleProp);
         }
@@ -141,7 +118,9 @@ namespace CrossQuery.Mapper.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void MapperInputReadOnlyProperty()
         {
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -159,14 +138,16 @@ namespace CrossQuery.Mapper.Tests
                 StringProp1 = "forReadOnly"
             };
 
-            var result = Mapper.Map<MockSource, MockDestination>(source);
+            var result = mapper.Map<MockSource, MockDestination>(source);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void MapperInputMethod()
         {
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -184,14 +165,16 @@ namespace CrossQuery.Mapper.Tests
                 StringProp1 = "forReadOnly"
             };
 
-            var result = Mapper.Map<MockSource, MockDestination>(source);
+            var result = mapper.Map<MockSource, MockDestination>(source);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void MapperForPropertyMissingCast()
         {
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.IntProp, d => d.StringProp);
 
@@ -201,14 +184,16 @@ namespace CrossQuery.Mapper.Tests
                 IntProp = 1234
             };
 
-            var result = Mapper.Map<MockSource, MockDestination>(source);
+            var result = mapper.Map<MockSource, MockDestination>(source);
         }
 
         [TestMethod]
         [ExpectedException(typeof(NotImplementedException))]
         public void MapReferenceProperty_MapperIsNotImplemented()
         {
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -231,18 +216,20 @@ namespace CrossQuery.Mapper.Tests
                 }
             };
 
-            var result = Mapper.Map<MockSource, MockDestination>(source);
+            var result = mapper.Map<MockSource, MockDestination>(source);
         }
 
         [TestMethod]
         public void MapReferenceProperty_MapperImplemented_AllOk()
         {
-            Mapper.CreateConfiguration<MockSource1, MockDestination1>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource1, MockDestination1>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp);
 
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -265,7 +252,7 @@ namespace CrossQuery.Mapper.Tests
                 }
             };
 
-            var result = Mapper.Map<MockSource, MockDestination>(source);
+            var result = mapper.Map<MockSource, MockDestination>(source);
 
             Assert.AreEqual(source.GuidProp, result.GuidProp, "GuidProp error.");
             Assert.AreEqual(source.StringProp, result.StringProp, "StringProp error.");
@@ -281,12 +268,14 @@ namespace CrossQuery.Mapper.Tests
         [TestMethod]
         public void MapCollectionWithReferenceProperty_MapperImplemented_AllOk()
         {
-            Mapper.CreateConfiguration<MockSource1, MockDestination1>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource1, MockDestination1>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp);
 
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -324,7 +313,7 @@ namespace CrossQuery.Mapper.Tests
                 }
             };
 
-            var result = Mapper.Map<MockSource, MockDestination>((new List<MockSource>() { source1, source2 }).AsQueryable());
+            var result = mapper.Map<MockSource, MockDestination>((new List<MockSource>() { source1, source2 }).AsQueryable());
 
             Assert.AreEqual(2, result.Count(), "Count error.");
 
@@ -357,7 +346,9 @@ namespace CrossQuery.Mapper.Tests
         [ExpectedException(typeof(NotImplementedException))]
         public void MapCollectionWithReferenceProperty_MapperIsNotImplemented()
         {
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -395,18 +386,20 @@ namespace CrossQuery.Mapper.Tests
                 }
             };
 
-            var result = Mapper.Map<MockSource, MockDestination>((new List<MockSource>() { source1, source2 }).AsQueryable());
+            var result = mapper.Map<MockSource, MockDestination>((new List<MockSource>() { source1, source2 }).AsQueryable());
         }
 
         [TestMethod]
         public void MapSourceWithCollectionAndReferenceProperty_MapperImplemented_AllOk()
         {
-            Mapper.CreateConfiguration<MockSource1, MockDestination1>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource1, MockDestination1>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp);
 
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -445,7 +438,7 @@ namespace CrossQuery.Mapper.Tests
                 CollectionOfReferenceProperties = new List<MockSource1>() { sourceRef1, sourceRef2 }
             };
 
-            var result = Mapper.Map<MockSource, MockDestination>((new List<MockSource>() { source }).AsQueryable());           
+            var result = mapper.Map<MockSource, MockDestination>((new List<MockSource>() { source }).AsQueryable());           
 
             var destination = result.FirstOrDefault(d => d.GuidProp == source.GuidProp);
 
@@ -475,12 +468,14 @@ namespace CrossQuery.Mapper.Tests
         [TestMethod]
         public void MapSourceWithCollectionAndReferenceProperty_MapperForCollectionIsNotImplemented()
         {
-            Mapper.CreateConfiguration<MockSource1, MockDestination1>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource1, MockDestination1>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp);
 
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -518,7 +513,7 @@ namespace CrossQuery.Mapper.Tests
                 CollectionOfReferenceProperties = new List<MockSource1>() { sourceRef1, sourceRef2 }
             };
 
-            var result = Mapper.Map<MockSource, MockDestination>((new List<MockSource>() { source }).AsQueryable());
+            var result = mapper.Map<MockSource, MockDestination>((new List<MockSource>() { source }).AsQueryable());
 
             var destination = result.FirstOrDefault(d => d.GuidProp == source.GuidProp);
 
@@ -538,7 +533,9 @@ namespace CrossQuery.Mapper.Tests
         [TestMethod]
         public void MapSourceToDestination_NonGenericMetod_AllOk()
         {
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -554,7 +551,7 @@ namespace CrossQuery.Mapper.Tests
                 DoubleProp = 123.456
             };
 
-            var result = (MockDestination)Mapper.Map(typeof(MockSource), typeof(MockDestination), source);
+            var result = (MockDestination)mapper.Map(typeof(MockSource), typeof(MockDestination), source);
 
             Assert.AreEqual(source.GuidProp, result.GuidProp, "GuidProp error.");
             Assert.AreEqual(source.StringProp, result.StringProp, "StringProp error.");
@@ -567,7 +564,9 @@ namespace CrossQuery.Mapper.Tests
         [ExpectedException(typeof(NullReferenceException))]
         public void MapSourceToDestination_NonGenericMetod_TSourceIsNull()
         {
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -583,14 +582,16 @@ namespace CrossQuery.Mapper.Tests
                 DoubleProp = 123.456
             };
 
-            var result = (MockDestination)Mapper.Map(null, typeof(MockDestination), source);
+            var result = (MockDestination)mapper.Map(null, typeof(MockDestination), source);
         }
 
         [TestMethod]
         [ExpectedException(typeof(NullReferenceException))]
         public void MapSourceToDestination_NonGenericMetod_TDestIsNull()
         {
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -606,14 +607,16 @@ namespace CrossQuery.Mapper.Tests
                 DoubleProp = 123.456
             };
 
-            var result = (MockDestination)Mapper.Map(typeof(MockSource), null, source);
+            var result = (MockDestination)mapper.Map(typeof(MockSource), null, source);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void MapSourceToDestination_NonGenericMetod_TSourceIsNotClass()
         {
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -629,14 +632,16 @@ namespace CrossQuery.Mapper.Tests
                 DoubleProp = 123.456
             };
 
-            var result = (MockDestination)Mapper.Map(typeof(int), typeof(MockDestination), source);
+            var result = (MockDestination)mapper.Map(typeof(int), typeof(MockDestination), source);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void MapSourceToDestination_NonGenericMetod_TDestIsNotClass()
         {
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -652,14 +657,16 @@ namespace CrossQuery.Mapper.Tests
                 DoubleProp = 123.456
             };
 
-            var result = (int)Mapper.Map(typeof(MockSource), typeof(int), source);
+            var result = (int)mapper.Map(typeof(MockSource), typeof(int), source);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void MapSourceToDestination_NonGenericMetod_TDestIsNotImplementDefaulConstructor()
         {
-            Mapper.CreateConfiguration<MockSource, MockDestination1>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource, MockDestination1>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp);
@@ -671,14 +678,16 @@ namespace CrossQuery.Mapper.Tests
                 IntProp = 1234
             };
 
-            var result = (MockDestinationWithoutDefaultConstructor)Mapper.Map(typeof(MockSource), typeof(MockDestinationWithoutDefaultConstructor), source);
+            var result = (MockDestinationWithoutDefaultConstructor)mapper.Map(typeof(MockSource), typeof(MockDestinationWithoutDefaultConstructor), source);
         }
 
         [TestMethod]
         [ExpectedException(typeof(NullReferenceException))]
         public void MapSourceToDestination_NonGenericMetod_SourceObjIsNull()
         {
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -694,14 +703,16 @@ namespace CrossQuery.Mapper.Tests
                 DoubleProp = 123.456
             };
 
-            var result = (MockDestination)Mapper.Map(typeof(MockSource), typeof(MockDestination), null);
+            var result = (MockDestination)mapper.Map(typeof(MockSource), typeof(MockDestination), null);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void MapSourceToDestination_NonGenericMetod_TSourceAndSourceObjHaveDifferentTypes()
         {
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -715,19 +726,21 @@ namespace CrossQuery.Mapper.Tests
                 IntProp = 1234
             };
 
-            var result = (MockDestination)Mapper.Map(typeof(MockSource), typeof(MockDestination), source);
+            var result = (MockDestination)mapper.Map(typeof(MockSource), typeof(MockDestination), source);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void MapSourceToDestination_NonGenericMetod_TSourceIsArrayNonGenericType()
         {
-            Mapper.CreateConfiguration<MockSource1, MockDestination1>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource1, MockDestination1>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp);
 
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -765,7 +778,7 @@ namespace CrossQuery.Mapper.Tests
                 }
             };
 
-            var result = (IEnumerable)Mapper.Map(
+            var result = (IEnumerable)mapper.Map(
                 typeof(IEnumerable),
                 typeof(IEnumerable),
                 (new List<MockSource>() { source1, source2 }).AsQueryable());
@@ -775,12 +788,14 @@ namespace CrossQuery.Mapper.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void MapSourceToDestination_NonGenericMetod_TSourceIsArrayDestinatiniIsNotArray()
         {
-            Mapper.CreateConfiguration<MockSource1, MockDestination1>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource1, MockDestination1>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp);
 
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -818,7 +833,7 @@ namespace CrossQuery.Mapper.Tests
                 }
             };
 
-            var result = (IEnumerable)Mapper.Map(
+            var result = (IEnumerable)mapper.Map(
                 typeof(IEnumerable),
                 typeof(MockDestination),
                 (new List<MockSource>() { source1, source2 }).AsQueryable());
@@ -828,12 +843,14 @@ namespace CrossQuery.Mapper.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void MapSourceToDestination_NonGenericMetod_TSourceIsNotArrayDestinatiniIsArray()
         {
-            Mapper.CreateConfiguration<MockSource1, MockDestination1>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource1, MockDestination1>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp);
 
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -871,7 +888,7 @@ namespace CrossQuery.Mapper.Tests
                 }
             };
 
-            var result = (IEnumerable)Mapper.Map(
+            var result = (IEnumerable)mapper.Map(
                 typeof(MockSource),
                 typeof(IEnumerable),
                 (new List<MockSource>() { source1, source2 }).AsQueryable());
@@ -880,12 +897,14 @@ namespace CrossQuery.Mapper.Tests
         [TestMethod]
         public void MapSourceToDestination_NonGenericMetod_TSourceIsArray_AllOk()
         {
-            Mapper.CreateConfiguration<MockSource1, MockDestination1>()
+            var mapper = new Mapper();
+
+            mapper.CreateConfiguration<MockSource1, MockDestination1>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp);
 
-            Mapper.CreateConfiguration<MockSource, MockDestination>()
+            mapper.CreateConfiguration<MockSource, MockDestination>()
                 .AddMap(s => s.GuidProp, d => d.GuidProp)
                 .AddMap(s => s.StringProp, d => d.StringProp)
                 .AddMap(s => s.IntProp, d => d.IntProp)
@@ -923,7 +942,7 @@ namespace CrossQuery.Mapper.Tests
                 }
             };
 
-            var result = (IEnumerable<MockDestination>)Mapper.Map(
+            var result = (IEnumerable<MockDestination>)mapper.Map(
                 typeof(MockSource), 
                 typeof(MockDestination), 
                 (new List<MockSource>() { source1, source2 }).AsQueryable());

@@ -7,5 +7,7 @@ namespace CrossQuery.Entity.Interfaces
     {
         IQueryable<TEntity> GetEntities<TEntity>() 
             where TEntity : class, ICQObject;
+
+        Mapper.Mapper Mapper { get; }
     }
 }

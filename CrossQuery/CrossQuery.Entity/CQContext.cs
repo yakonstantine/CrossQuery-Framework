@@ -6,17 +6,28 @@ using CrossQuery.Interfaces;
 using CrossQuery.Linq;
 using CrossQuery.Linq.Collections;
 using CrossQuery.Linq.Interfaces;
+using CrossQuery.Mapper;
 
 namespace CrossQuery.Entity
 {
-    public abstract class CQContext : ICQAdapter
+    public class CQContext : ICQAdapter
     {
         private IList<Type> _modelTypes = new List<Type>();
         private CQProvider _provider;
+        private Mapper.Mapper _mapper;
 
-        public CQContext(params IDataAdapter[] dataAdapters)
+        public CQContext(Mapper.Mapper mapper, params IDataAdapter[] dataAdapters)
         {
-            _provider = new CQProvider(dataAdapters);
+            _mapper = mapper;
+            _provider = new CQProvider(_mapper, dataAdapters);
+        }
+
+        public Mapper.Mapper Mapper
+        {
+            get
+            {
+                return _mapper;
+            }
         }
 
         public IQueryable<TEntity> GetEntities<TEntity>() 

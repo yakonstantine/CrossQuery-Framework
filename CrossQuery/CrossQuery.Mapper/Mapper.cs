@@ -7,11 +7,11 @@ using CrossQuery.Mapper.Internal;
 
 namespace CrossQuery.Mapper
 {
-    public static class Mapper
+    public class Mapper
     {
-        private static List<IMapperConfiguration> _mapperConfigurations = new List<IMapperConfiguration>();
+        private List<IMapperConfiguration> _mapperConfigurations = new List<IMapperConfiguration>();
 
-        public static TDest Map<TSource, TDest>(TSource source)  
+        public TDest Map<TSource, TDest>(TSource source)  
             where TDest : class, new()
             where TSource : class
         {
@@ -26,7 +26,7 @@ namespace CrossQuery.Mapper
             return ((IMapperConfiguration<TSource, TDest>)mapperConfiguration).Map(source);
         }        
 
-        public static IEnumerable<TDest> Map<TSource, TDest>(IQueryable<TSource> sourceCollection)
+        public IEnumerable<TDest> Map<TSource, TDest>(IQueryable<TSource> sourceCollection)
             where TDest : class, new()
             where TSource : class
         {
@@ -45,7 +45,7 @@ namespace CrossQuery.Mapper
                 .ToList();
         }
 
-        public static object Map(Type TSource, Type TDest, object source)
+        public object Map(Type TSource, Type TDest, object source)
         {
             if (TSource == null)
                 throw new NullReferenceException("TSource is null");
@@ -96,7 +96,7 @@ namespace CrossQuery.Mapper
             return mapperConfiguration.Map(source);
         }
 
-        public static IMapperConfiguration<TSource, TDest> CreateConfiguration<TSource, TDest>()
+        public IMapperConfiguration<TSource, TDest> CreateConfiguration<TSource, TDest>()
             where TDest : class, new()
             where TSource : class
         {
@@ -104,19 +104,14 @@ namespace CrossQuery.Mapper
 
             if (mapperConfiguration == null)
             {
-                mapperConfiguration = new MapperConfiguration<TSource, TDest>();
+                mapperConfiguration = new MapperConfiguration<TSource, TDest>(this);
                 _mapperConfigurations.Add(mapperConfiguration); 
             }
 
             return (IMapperConfiguration<TSource, TDest>)mapperConfiguration;
         }
 
-        public static void ClearConfiguration()
-        {
-            _mapperConfigurations.Clear();
-        }
-
-        private static IMapperConfiguration GetConfiguration<TSource, TDest>()
+        private IMapperConfiguration GetConfiguration<TSource, TDest>()
             where TDest : class, new()
             where TSource : class
 
@@ -125,7 +120,7 @@ namespace CrossQuery.Mapper
                 .FirstOrDefault(mc => mc.GetDestinationType() == typeof(TDest) && mc.GetSourceType() == typeof(TSource));
         }
 
-        private static IMapperConfiguration GetConfiguration(Type TSource, Type TDest)
+        private IMapperConfiguration GetConfiguration(Type TSource, Type TDest)
 
         {
             return _mapperConfigurations
