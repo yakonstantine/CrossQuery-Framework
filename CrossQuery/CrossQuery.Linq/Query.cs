@@ -12,12 +12,12 @@ namespace CrossQuery.Linq
 {
     internal class Query
     {
-        public string MethodName { get; set; }
-        public Type EntityType { get; set; }
-        public StringBuilder LambdaExpression { get; set; } = new StringBuilder();
-        public List<object> Parameters { get; set; } = new List<object>();
+        internal string MethodName { get; set; }
+        internal Type EntityType { get; set; }
+        internal StringBuilder LambdaExpression { get; set; } = new StringBuilder();
+        internal List<object> Parameters { get; set; } = new List<object>();
 
-        public void AppendBinaryOperator(ExpressionType type)
+        internal void AppendBinaryOperator(ExpressionType type)
         {
             switch (type)
             {
@@ -52,13 +52,13 @@ namespace CrossQuery.Linq
             }
         }
 
-        public void AddParameter(object parameter)
+        internal void AddParameter(object parameter)
         {
             this.LambdaExpression.Append($" @{this.Parameters.Count()} ");
             this.Parameters.Add(parameter);
         }
 
-        public object Execute(IQueryable collection)
+        internal object Execute(IQueryable collection)
         {
             var method = typeof(DynamicQueryable)
                 .GetMethods(BindingFlags.Static | BindingFlags.Public)
@@ -95,7 +95,7 @@ namespace CrossQuery.Linq
             throw new NotImplementedException($"Method name - {this.MethodName}");
         }
 
-        private Expression CreateLambdaExpression()
+        internal Expression CreateLambdaExpression()
         {
             return System.Linq.Dynamic.DynamicExpression.ParseLambda(
                  new[] { Expression.Parameter(this.EntityType) },

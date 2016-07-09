@@ -7,7 +7,7 @@ using CrossQuery.Linq.Interfaces;
 
 namespace CrossQuery.Linq.Tests.Mock.DomainModel
 {
-    public class Teacher : ICQObject
+    public class Teacher
     {
         public Guid ID { get; set; }
 

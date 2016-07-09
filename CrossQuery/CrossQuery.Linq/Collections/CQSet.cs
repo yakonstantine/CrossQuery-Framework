@@ -15,12 +15,6 @@ namespace CrossQuery.Linq.Collections
         BaseCQProvider _provider;
         Expression _expression;
 
-        private CQSet()
-        {
-            if (typeof(ICQObject).IsAssignableFrom(typeof(T)))
-                throw new InvalidCastException($"{typeof(T).FullName} don't inmplement interface {typeof(ICQObject).FullName}");
-        }
-
         public CQSet(BaseCQProvider provider) 
             : base()
         {

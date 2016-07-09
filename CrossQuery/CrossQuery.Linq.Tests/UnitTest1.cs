@@ -96,9 +96,9 @@ namespace CrossQuery.Linq.Tests
             db2Adapter.AddEntity<Event>(event2);
             db2Adapter.SaveChanges();
 
-            var cqProvider = new CQProvider(null, db1Adapter, db2Adapter);
+            var cqContext = new CQContext(null, db1Adapter, db2Adapter);
 
-            var result = (new CQSet<Mock.DomainModel.Event>(cqProvider)).Where(e => e.ID == event1.Id).SelectMany(e => e.Group.Students).Count();
+            var result = cqContext.GetEntities<Mock.DomainModel.Event>().Where(e => e.ID == event1.Id).SelectMany(e => e.Group.Students).Count();
 
             Assert.AreEqual(2, result);
         }
@@ -159,9 +159,9 @@ namespace CrossQuery.Linq.Tests
                 .AddMap(s => s.Id, d => d.ID)
                 .AddMap(s => s.Name, d => d.Name);
 
-            var cqProvider = new CQProvider(mapper, db1Adapter, db2Adapter);
+            var cqContext = new CQContext(mapper, db1Adapter, db2Adapter);
 
-            var result = (new CQSet<Mock.DomainModel.Event>(cqProvider)).FirstOrDefault(e => e.Group.ID == group1.Id);
+            var result = cqContext.GetEntities<Mock.DomainModel.Event>().FirstOrDefault(e => e.Group.ID == group1.Id);
 
             Assert.IsNotNull(result, "Event not found");
             Assert.AreEqual(event1.Id, result.ID, "Wrong event");
@@ -196,9 +196,9 @@ namespace CrossQuery.Linq.Tests
                 .AddMap(s => s.Id, d => d.ID)
                 .AddMap(s => s.Name, d => d.Name);
 
-            var cqProvider = new CQProvider(mapper, db1Adapter);
+            var cqContext = new CQContext(mapper, db1Adapter);
 
-            var result = (new CQSet<Mock.DomainModel.Group>(cqProvider)).FirstOrDefault(g => g.ID == group1.Id);
+            var result = cqContext.GetEntities<Mock.DomainModel.Group>().FirstOrDefault(g => g.ID == group1.Id);
 
             Assert.IsNotNull(result, "Event not found");
             Assert.AreEqual(group1.Id, result.ID, "Wrong group");
@@ -243,9 +243,9 @@ namespace CrossQuery.Linq.Tests
                 .AddMap(s => s.Name, d => d.Name)
                 .AddMap(s => s.Number, d => d.Number);
 
-            var cqProvider = new CQProvider(mapper, db1Adapter);
+            var cqContext = new CQContext(mapper, db1Adapter);
 
-            var result = (new CQSet<Mock.DomainModel.Group>(cqProvider)).Where(g => g.Number == 1).ToList();
+            var result = cqContext.GetEntities<Mock.DomainModel.Group>().Where(g => g.Number == 1).ToList();
 
             Assert.AreEqual(2, result.Count(), "Wrong groups count");
             Assert.IsFalse(result.Any(g => g.Number != 1), "Wrong group returned");
@@ -290,9 +290,9 @@ namespace CrossQuery.Linq.Tests
                 .AddMap(s => s.Name, d => d.Name)
                 .AddMap(s => s.Number, d => d.Number);
 
-            var cqProvider = new CQProvider(mapper, db1Adapter);
+            var cqContext = new CQContext(mapper, db1Adapter);
 
-            var result = (new CQSet<Mock.DomainModel.Group>(cqProvider)).Count(g => g.Number == 1);
+            var result = cqContext.GetEntities<Mock.DomainModel.Group>().Count(g => g.Number == 1);
 
             Assert.AreEqual(2, result, "Wrong groups count");
         }
@@ -336,9 +336,9 @@ namespace CrossQuery.Linq.Tests
                 .AddMap(s => s.Name, d => d.Name)
                 .AddMap(s => s.Number, d => d.Number);
 
-            var cqProvider = new CQProvider(mapper, db1Adapter);
+            var cqContext = new CQContext(mapper, db1Adapter);
 
-            var result = (new CQSet<Mock.DomainModel.Group>(cqProvider)).Where(g => g.Number == 1).Count();
+            var result = cqContext.GetEntities<Mock.DomainModel.Group>().Where(g => g.Number == 1).Count();
 
             Assert.AreEqual(2, result, "Wrong groups count");
         }
@@ -382,9 +382,10 @@ namespace CrossQuery.Linq.Tests
                 .AddMap(s => s.Name, d => d.Name)
                 .AddMap(s => s.Number, d => d.Number);
 
-            var cqProvider = new CQProvider(mapper, db1Adapter);
+            var cqContext = new CQContext(mapper, db1Adapter);
 
-            var result = (new CQSet<Mock.DomainModel.Group>(cqProvider)).Where(g => g.Number == group1.Number && g.ID == group1.Id).First();
+            var result = cqContext.GetEntities<Mock.DomainModel.Group>()
+                .Where(g => g.Number == group1.Number && g.ID == group1.Id).First();
 
             Assert.AreEqual(group1.Id, result.ID, "Wrong group returned");
         }
@@ -428,9 +429,12 @@ namespace CrossQuery.Linq.Tests
                 .AddMap(s => s.Name, d => d.Name)
                 .AddMap(s => s.Number, d => d.Number);
 
-            var cqProvider = new CQProvider(mapper, db1Adapter);
+            var cqContext = new CQContext(mapper, db1Adapter);
 
-            var result = (new CQSet<Mock.DomainModel.Group>(cqProvider)).Where(g => g.Number == group1.Number).Where(g => g.ID == group1.Id).First();
+            var result = cqContext.GetEntities<Mock.DomainModel.Group>()
+                .Where(g => g.Number == group1.Number)
+                .Where(g => g.ID == group1.Id)
+                .First();
 
             Assert.AreEqual(group1.Id, result.ID, "Wrong groups count");
         }
@@ -474,9 +478,11 @@ namespace CrossQuery.Linq.Tests
                 .AddMap(s => s.Name, d => d.Name)
                 .AddMap(s => s.Number, d => d.Number);
 
-            var cqProvider = new CQProvider(mapper, db1Adapter);
+            var cqContext = new CQContext(mapper, db1Adapter);
 
-            var result = (new CQSet<Mock.DomainModel.Group>(cqProvider)).Where(g => !(g.Number == 1)).First();
+            var result = cqContext.GetEntities<Mock.DomainModel.Group>()
+                .Where(g => !(g.Number == 1))
+                .First();
 
             Assert.AreEqual(group3.Id, result.ID, "Wrong groups count");
         }
@@ -520,9 +526,9 @@ namespace CrossQuery.Linq.Tests
                 .AddMap(s => s.Name, d => d.Name)
                 .AddMap(s => s.Number, d => d.Number);
 
-            var cqProvider = new CQProvider(mapper, db1Adapter);
+            var cqContext = new CQContext(mapper, db1Adapter);
 
-            var result = (new CQSet<Mock.DomainModel.Group>(cqProvider)).Select(g => g.ID).ToList();
+            var result = cqContext.GetEntities<Mock.DomainModel.Group>().Select(g => g.ID).ToList();
 
             Assert.IsTrue(result.Any(r => r == group1.Id), "group1 is not found");
             Assert.IsTrue(result.Any(r => r == group2.Id), "group2 is not found");
@@ -569,9 +575,11 @@ namespace CrossQuery.Linq.Tests
                 .AddMap(s => s.Name, d => d.Name)
                 .AddMap(s => s.Number, d => d.Number);
 
-            var cqProvider = new CQProvider(mapper, db1Adapter);
+            var cqContext = new CQContext(mapper, db1Adapter);
 
-            var result = (new CQSet<Mock.DomainModel.Group>(cqProvider)).Select(g => new { g.ID, g.Number }).ToList();
+            var result = cqContext.GetEntities<Mock.DomainModel.Group>()
+                .Select(g => new { g.ID, g.Number })
+                .ToList();
 
             Assert.IsTrue(result.Any(r => r.ID == group1.Id), "group1 is not found");
             Assert.IsTrue(result.Any(r => r.ID == group2.Id), "group2 is not found");
@@ -579,14 +587,14 @@ namespace CrossQuery.Linq.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
+        [ExpectedException(typeof(ArgumentException))]
         public void GetTeacherByID_AdapterAttributeIsNotAdded()
         {
             var db1Adapter = new DB1Adapter();
 
-            var cqProvider = new CQProvider(null, db1Adapter);
+            var cqContext = new CQContext(null, db1Adapter);
 
-            var result = (new CQSet<Mock.DomainModel.Teacher>(cqProvider)).First();
+            var result = cqContext.GetEntities<Mock.DomainModel.Teacher>().First();
         }
     }
 }

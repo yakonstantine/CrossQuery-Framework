@@ -29,7 +29,7 @@ namespace CrossQuery.Linq
             return _query;
         }
 
-        private static Expression StripQuotes(Expression expression)
+        private Expression StripQuotes(Expression expression)
         {
             while (expression.NodeType == ExpressionType.Quote)
                 expression = ((UnaryExpression)expression).Operand;
@@ -115,7 +115,7 @@ namespace CrossQuery.Linq
                 var attribute = Attribute.GetCustomAttribute(q.ElementType, typeof(AdapterAttribute));
 
                 if (attribute == null)
-                    throw new InvalidOperationException($"Attribute {typeof(AdapterAttribute)} is not added to class.");
+                    throw new InvalidOperationException($"{q.ElementType.Name} does not contain attribute {typeof(AdapterAttribute).Name}");
 
                 var adapterAttribute = (AdapterAttribute)attribute;
 
@@ -132,9 +132,11 @@ namespace CrossQuery.Linq
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            if (memberExpression.Expression != null && memberExpression.Expression.NodeType == ExpressionType.Parameter)
+            if (memberExpression.Expression != null 
+                && memberExpression.Expression.NodeType == ExpressionType.Parameter)
             {
-                var attribute = memberExpression.Member.CustomAttributes.FirstOrDefault(a => a.AttributeType == typeof(AssotiationAttribute));
+                var attribute = memberExpression.Member.CustomAttributes
+                    .FirstOrDefault(a => a.AttributeType == typeof(AssotiationAttribute));
 
                 if (attribute != null)
                 {

@@ -9,12 +9,12 @@ using CrossQuery.Linq.Interfaces;
 
 namespace CrossQuery.Linq
 {
-    public class CQProvider : BaseCQProvider
+    internal class CQProvider : BaseCQProvider
     {
         private IDataAdapter[] _dataAdapters;
         private Mapper.Mapper _mapper;
 
-        public CQProvider(Mapper.Mapper mapper, params IDataAdapter[] dataAdapters)
+        internal CQProvider(Mapper.Mapper mapper, params IDataAdapter[] dataAdapters)
         {
             _mapper = mapper;
             _dataAdapters = dataAdapters;
@@ -58,15 +58,12 @@ namespace CrossQuery.Linq
                     continue;
                 }
 
-                var mapMethod = typeof(Mapper.Mapper).GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                    .First(m => m.Name == "Map" && m.ReturnType == typeof(object));
-
                 var destinationType = expression.Type;
 
                 if (typeof(IEnumerable).IsAssignableFrom(destinationType))
                     destinationType = destinationType.GetGenericArguments()[0];
 
-                returnedObject = mapMethod.Invoke(_mapper, new object[] { query.EntityType, destinationType, queryExecuteResult });
+                returnedObject = _mapper.Map(query.EntityType, destinationType, queryExecuteResult);
             }
 
             return returnedObject;
