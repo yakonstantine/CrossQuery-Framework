@@ -31,32 +31,14 @@ namespace CrossQuery.Mapper.Internal
             var sourcePropertyType = sourcePropertyValue.GetType();
             var destinationPropertyType = destinationPropertyInfo.PropertyType;
 
-            if (IsCollection(destinationPropertyInfo.PropertyType) 
-                && IsCollection(sourcePropertyValue.GetType()))
+            if (IsCollection(sourcePropertyType) && IsCollection(destinationPropertyType))
             {
                 sourcePropertyType = sourcePropertyType.GetGenericArguments().First();
                 destinationPropertyType = destinationPropertyType.GetGenericArguments().First();
             }
 
-            try
-            {
-                if (IsReferenceType(sourcePropertyType) && IsReferenceType(destinationPropertyType))
-                {
-                    sourcePropertyValue = typeof(Mapper)
-                        .GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                        .First(m => m.Name == "Map" && m.ReturnType == typeof(object))
-                        .Invoke(this.MapperConfiguration.Mapper, new[]
-                        {
-                            sourcePropertyType,
-                            destinationPropertyType,
-                            sourcePropertyValue
-                        });
-                }
-            }
-            catch (TargetInvocationException ex)
-            {
-                throw ex.InnerException;
-            }
+            if (IsReferenceType(sourcePropertyType) && IsReferenceType(destinationPropertyType))
+                sourcePropertyValue = this.MapperConfiguration.Mapper.Map(sourcePropertyType, destinationPropertyType, sourcePropertyValue);
 
             try
             {

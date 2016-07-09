@@ -26,7 +26,7 @@ namespace CrossQuery.Mapper
             return ((IMapperConfiguration<TSource, TDest>)mapperConfiguration).Map(source);
         }        
 
-        public IEnumerable<TDest> Map<TSource, TDest>(IQueryable<TSource> sourceCollection)
+        public IEnumerable<TDest> Map<TSource, TDest>(IEnumerable<TSource> sourceCollection)
             where TDest : class, new()
             where TSource : class
         {
@@ -39,7 +39,6 @@ namespace CrossQuery.Mapper
                 throw new NotImplementedException($"Mapper for {typeof(TSource).Name} and {typeof(TDest).Name} is not implemented");
 
             return sourceCollection
-                .ToList()
                 .Select(s => ((MapperConfiguration<TSource, TDest>)mapperConfiguration).Map(s))
                 .AsParallel()
                 .ToList();
