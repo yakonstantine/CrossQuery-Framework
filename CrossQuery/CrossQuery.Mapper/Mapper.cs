@@ -9,6 +9,8 @@ namespace CrossQuery.Mapper
 {
     public class Mapper
     {
+        private static Mapper _singleMapper;
+
         private List<IMapperConfiguration> _mapperConfigurations = new List<IMapperConfiguration>();
 
         public TDest Map<TSource, TDest>(TSource source)  
@@ -124,6 +126,22 @@ namespace CrossQuery.Mapper
         {
             return _mapperConfigurations
                 .FirstOrDefault(mc => mc.GetDestinationType() == TDest && mc.GetSourceType() == TSource);
+        }
+
+        public static Mapper GetSingleMapper()
+        {
+            if (_singleMapper == null)
+                _singleMapper = new Mapper();
+
+            return _singleMapper;
+        }
+
+        public static void ClearSingleMapperConfiguration()
+        {
+            if (_singleMapper == null)
+                throw new NullReferenceException("SingleMapper is null. You must first call GetSingleMapper() method.");
+
+            _singleMapper._mapperConfigurations.Clear();
         }
     }
 }

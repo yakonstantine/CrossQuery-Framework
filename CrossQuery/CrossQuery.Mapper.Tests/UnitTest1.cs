@@ -973,5 +973,49 @@ namespace CrossQuery.Mapper.Tests
             Assert.AreEqual(source2.ReferenceProperty.StringProp, destination.ReferenceProperty.StringProp, "source2 ReferenceProperty.StringProp error.");
             Assert.AreEqual(source2.ReferenceProperty.IntProp, destination.ReferenceProperty.IntProp, "source2 ReferenceProperty.IntProp error.");
         }
+
+        [TestMethod]
+        public void GetSingleMapper_ReturnMethod()
+        {
+            var singleMapper = Mapper.GetSingleMapper();
+
+            Assert.IsNotNull(singleMapper, "SingleMapper is null");
+        }
+
+        [TestMethod]
+        public void GetSingleMapper_AllReferencesToSingleObject()
+        {
+            var singleMapper1 = Mapper.GetSingleMapper();
+            var singleMapper2 = Mapper.GetSingleMapper();
+
+            Assert.AreEqual(singleMapper1, singleMapper1, "References to different objects");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotImplementedException))]
+        public void ClearSingleMapperConfiguration_ClearConfiguration()
+        {
+            var singleMapper = Mapper.GetSingleMapper();
+
+            singleMapper.CreateConfiguration<MockSource, MockDestination>()
+               .AddMap(s => s.GuidProp, d => d.GuidProp)
+               .AddMap(s => s.StringProp, d => d.StringProp)
+               .AddMap(s => s.IntProp, d => d.IntProp)
+               .AddMap(s => s.DateTimeProp, d => d.DateTimeProp)
+               .AddMap(s => s.DoubleProp, d => d.DoubleProp);
+
+            var source = new MockSource()
+            {
+                GuidProp = Guid.NewGuid(),
+                StringProp = "anyString",
+                IntProp = 1234,
+                DateTimeProp = DateTime.Now,
+                DoubleProp = 123.456
+            };
+
+            Mapper.ClearSingleMapperConfiguration();
+
+            singleMapper.Map<MockSource, MockDestination>(source);
+        }
     }
 }
