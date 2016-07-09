@@ -123,6 +123,9 @@ namespace CrossQuery.Linq
                     return constantExpression;
 
                 _query.EntityType = ((AdapterAttribute)attribute).SourceClass;
+
+                if (_query.EntityType == null)
+                    throw new NullReferenceException($"SourceClass is null in {typeof(AdapterAttribute).Name} of {q.ElementType.Name}");
             }
             else if (constantExpression.NodeType == ExpressionType.Constant)
                 _query.AddParameter(constantExpression.Value);

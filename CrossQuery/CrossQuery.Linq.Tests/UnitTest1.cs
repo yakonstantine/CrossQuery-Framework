@@ -596,5 +596,40 @@ namespace CrossQuery.Linq.Tests
 
             var result = cqContext.GetEntities<Mock.DomainModel.Teacher>().First();
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(NullReferenceException))]
+        public void GetGroup_GroupFromDB1_GroupWithAttributeWithoutSourceClass()
+        {
+            #region Mock.DB_1_Entities.Groups Initialize
+
+            var group1 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group1"
+            };
+            var group2 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group2"
+            };
+
+            #endregion
+
+            var db1Adapter = new DB1Adapter();
+            db1Adapter.AddEntity<Group>(group1);
+            db1Adapter.AddEntity<Group>(group2);
+            db1Adapter.SaveChanges();
+
+            var mapper = new Mapper.Mapper();
+
+            mapper.CreateConfiguration<Mock.DB1_Context.Group, Mock.DomainModel.GroupWitoutSourceClass>()
+                .AddMap(s => s.Id, d => d.ID)
+                .AddMap(s => s.Name, d => d.Name);
+
+            var cqContext = new CQContext(mapper, db1Adapter);
+
+            var result = cqContext.GetEntities<Mock.DomainModel.GroupWitoutSourceClass>().FirstOrDefault();
+        }
     }
 }

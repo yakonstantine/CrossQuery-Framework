@@ -4,7 +4,7 @@ using CrossQuery.Linq.Interfaces;
 
 namespace CrossQuery.Linq.Tests.Mock.DomainModel
 {
-    [Adapter(AdapterName = "DB2", SourceClass = typeof(DB2_Context.Event))]
+    [Adapter("DB2", typeof(DB2_Context.Event))]
     public class Event
     {
         public Guid ID { get; set; }
@@ -13,7 +13,7 @@ namespace CrossQuery.Linq.Tests.Mock.DomainModel
 
         public string GroupName { get; set; }
 
-        [Assotiation(SourcePropertyName = "GroupName", TargetClass = typeof(Group), TargetPropertyName = "Name" )]
+        [Assotiation("GroupName", typeof(Group), "Name" )]
         public Group Group { get; set; }
     }
 }
