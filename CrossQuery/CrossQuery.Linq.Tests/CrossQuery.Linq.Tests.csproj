@@ -106,6 +106,7 @@
     </Compile>
     <Compile Include="Mock\DomainModel\Event.cs" />
     <Compile Include="Mock\DomainModel\Group.cs" />
+    <Compile Include="Mock\DomainModel\GroupWitoutAdapterName.cs" />
     <Compile Include="Mock\DomainModel\GroupWitoutSourceClass.cs" />
     <Compile Include="Mock\DomainModel\Student.cs" />
     <Compile Include="Mock\DomainModel\Teacher.cs" />

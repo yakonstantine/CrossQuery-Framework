@@ -534,8 +534,7 @@ namespace CrossQuery.Linq.Tests
             Assert.IsTrue(result.Any(r => r == group2.Id), "group2 is not found");
             Assert.IsTrue(result.Any(r => r == group3.Id), "group3 is not found");
         }
-
-
+        
         [TestMethod]
         public void GetGroupsSelectNewEntity_GroupFromDB1()
         {
@@ -587,7 +586,7 @@ namespace CrossQuery.Linq.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void GetTeacherByID_AdapterAttributeIsNotAdded()
         {
             var db1Adapter = new DB1Adapter();
@@ -598,7 +597,77 @@ namespace CrossQuery.Linq.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(NullReferenceException))]
+        [ExpectedException(typeof(ArgumentException))]
+        public void GetGroup_GroupWithAttributeWithoutAdapterName_AdapterNameIsNull()
+        {
+            #region Mock.DB_1_Entities.Groups Initialize
+
+            var group1 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group1"
+            };
+            var group2 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group2"
+            };
+
+            #endregion
+
+            var db1Adapter = new DB1Adapter();
+            db1Adapter.AddEntity<Group>(group1);
+            db1Adapter.AddEntity<Group>(group2);
+            db1Adapter.SaveChanges();
+
+            var mapper = new Mapper.Mapper();
+
+            mapper.CreateConfiguration<Mock.DB1_Context.Group, Mock.DomainModel.GroupWitoutSourceClass>()
+                .AddMap(s => s.Id, d => d.ID)
+                .AddMap(s => s.Name, d => d.Name);
+
+            var cqContext = new CQContext(mapper, db1Adapter);
+
+            var result = cqContext.GetEntities<Mock.DomainModel.GroupAdapterNameNull>().FirstOrDefault();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void GetGroup_GroupWithAttributeWithoutAdapterName_AdapterNameEmpty()
+        {
+            #region Mock.DB_1_Entities.Groups Initialize
+
+            var group1 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group1"
+            };
+            var group2 = new Mock.DB1_Context.Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Group2"
+            };
+
+            #endregion
+
+            var db1Adapter = new DB1Adapter();
+            db1Adapter.AddEntity<Group>(group1);
+            db1Adapter.AddEntity<Group>(group2);
+            db1Adapter.SaveChanges();
+
+            var mapper = new Mapper.Mapper();
+
+            mapper.CreateConfiguration<Mock.DB1_Context.Group, Mock.DomainModel.GroupWitoutSourceClass>()
+                .AddMap(s => s.Id, d => d.ID)
+                .AddMap(s => s.Name, d => d.Name);
+
+            var cqContext = new CQContext(mapper, db1Adapter);
+
+            var result = cqContext.GetEntities<Mock.DomainModel.GroupAdapterNameEmpty>().FirstOrDefault();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
         public void GetGroup_GroupFromDB1_GroupWithAttributeWithoutSourceClass()
         {
             #region Mock.DB_1_Entities.Groups Initialize

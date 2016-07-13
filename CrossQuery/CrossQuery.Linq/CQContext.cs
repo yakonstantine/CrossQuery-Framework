@@ -43,8 +43,16 @@ namespace CrossQuery.Linq
 
         public IQueryable<TEntity> GetEntities<TEntity>() where TEntity : class
         {
-            if (!typeof(TEntity).CustomAttributes.Any(a => a.AttributeType == typeof(AdapterAttribute)))
-                throw new ArgumentException($"{typeof(TEntity).Name} does not contain attribute {typeof(AdapterAttribute).Name}");
+            var attribute = Attribute.GetCustomAttribute(typeof(TEntity), typeof(AdapterAttribute)) as AdapterAttribute;
+
+            if (attribute == null)
+                throw new ArgumentNullException($"{typeof(TEntity).Name} does not contain attribute {typeof(AdapterAttribute).Name}");
+
+            if (string.IsNullOrEmpty(attribute.AdapterName))
+                throw new ArgumentException($" AdapterName in {typeof(AdapterAttribute).Name} for class {typeof(TEntity).Name} is null or empty");
+
+            if (attribute.SourceClass == null)
+                throw new ArgumentException($" SourceClass in {typeof(AdapterAttribute).Name} for class {typeof(TEntity).Name} is null");
 
             return new CQSet<TEntity>(_provider);
         }
